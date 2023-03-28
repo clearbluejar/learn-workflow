@@ -16,8 +16,7 @@ jobs:
       image: ghcr.io/clearbluejar/ghidrecomp:latest
       env:
         GHIDRA_INSTALL_DIR: "/ghidra"
-      options: --user vscode
-
+      
     strategy:
       fail-fast: false
       matrix:
@@ -30,6 +29,8 @@ jobs:
         source .env/bin/activate
         pip install ghidrecomp
         cd /tmp
+        ls /ghidra
+        ghidrecomp -h
         ghidrecomp ${{ matrix.bins }}
       shell: bash
     - name: Upload decompilations
