@@ -21,4 +21,4 @@ jobs:
     - name: Run command in image
       run: |
         pip install ghidrecomp
-        ghdirecomp ${{ matrix.bins }}
+        ghidrecomp ${{ matrix.bins }}
