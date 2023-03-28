@@ -12,10 +12,10 @@ jobs:
   workflow-test:
 
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/clearbluejar/ghidrecomp:latest
-      env:
-        GHIDRA_INSTALL_DIR: "/ghidra"
+    # container:
+    #   image: ghcr.io/clearbluejar/ghidrecomp:latest
+    #   env:
+    #     GHIDRA_INSTALL_DIR: "/ghidra"
       
     strategy:
       fail-fast: false
@@ -23,19 +23,30 @@ jobs:
         bins: [ "/bin/ls", "/bin/bash", "/bin/grep" ]
     steps:
     - uses: actions/checkout@v3    
-    - name: Run command in image
-      run: |        
-        whoami
-        su vscode
-        whoami
-        python3 -m venv .env
-        source .env/bin/activate
-        pip install ghidrecomp
-        cd /tmp
-        ls /ghidra
-        ghidrecomp -h
-        ghidrecomp ${{ matrix.bins }}
-      shell: bash
+    # - name: Run command in image
+    #   run: |        
+    #     whoami
+    #     su vscode
+    #     whoami
+    #     python3 -m venv .env
+    #     source .env/bin/activate
+    #     pip install ghidrecomp
+    #     cd /tmp
+    #     ls /ghidra
+    #     ghidrecomp -h
+    #     ghidrecomp ${{ matrix.bins }}
+    #   shell: bash
+    - name: Run make ci-build in dev container
+      uses: devcontainers/ci@v0.3
+      with:    
+        # [Optional] If you have a separate workflow like the one above
+        # to pre-build your container image, you can reference it here
+        # to speed up your application build workflows as well!
+        cacheFrom: ghcr.io/clearbluejar/ghidrecomp:latest
+        push: never
+        runCmd: |
+          pip install ghidrecomp
+          ghidrecomp ${{ matrix.bins }}
     - name: Upload decompilations
       uses: actions/upload-artifact@v3
       with:
