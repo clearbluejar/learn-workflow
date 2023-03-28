@@ -16,6 +16,8 @@ jobs:
       image: ghcr.io/clearbluejar/ghidrecomp:latest
       env:
         GHIDRA_INSTALL_DIR: "/ghidra"
+      options: --user vscode
+
     strategy:
       fail-fast: false
       matrix:
