@@ -9,6 +9,8 @@ jobs:
   workflow-test:
 
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/clearbluejar/ghidrecomp:latest
     strategy:
       fail-fast: false
       matrix:
