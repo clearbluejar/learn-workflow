@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/clearbluejar/ghidrecomp:latest
+      env:
+        GHIDRA_INSTALL_DIR: "/ghidra"
     strategy:
       fail-fast: false
       matrix:
@@ -21,6 +23,7 @@ jobs:
     - name: Run command in image
       run: |
         pip install ghidrecomp
+        cd /tmp
         ghidrecomp ${{ matrix.bins }}
     - name: Upload decompilations
       uses: actions/upload-artifact@v3
