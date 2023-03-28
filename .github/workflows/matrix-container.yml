@@ -22,3 +22,8 @@ jobs:
       run: |
         pip install ghidrecomp
         ghidrecomp ${{ matrix.bins }}
+    - name: Upload decompilations
+    - uses: actions/upload-artifact@v3
+      with:
+        name: decompilations
+        path: decompilations
