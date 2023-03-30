@@ -44,7 +44,7 @@ jobs:
         id: getcount          
         run: |          
           # default 12 jobs
-          echo "countenv=$(python -c 'print([count for count in range(0,12)])'') >> "$GITHUB_OUTPUT"
+          echo "countenv=$(python -c 'print([count for count in range(0,12)])')" >> "$GITHUB_OUTPUT"
 
   
   workflow-test:
@@ -60,7 +60,7 @@ jobs:
       matrix:
         bins: [ "/bin/ls", "/bin/bash", "/bin/grep" ]
         count: [20]
-        counts: [needs.generate-matrix-from-default.outputs.count]
+        counts: ${{fromJson(needs.generate-matrix-from-default.outputs.count)}}
 
     steps:
       - uses: actions/checkout@v3
