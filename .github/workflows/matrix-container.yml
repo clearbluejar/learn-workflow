@@ -33,7 +33,7 @@ jobs:
 
   
   workflow-test:
-    needs: generate-matrix-from-default
+    needs: generate-matrix
 
     runs-on: ubuntu-latest
     # container:
