@@ -16,35 +16,20 @@ on:
 
 jobs:
 
-  # generate-matrix-from-count:
-  #   if:  ${{ inputs.count }}
-  #   runs-on: ubuntu-latest    
-  #   outputs:
-  #     count: ${{ steps.getcount.outputs.countenv }}
-  #   steps:      
-  #     - uses: actions/setup-python@v4
-  #       with:
-  #         python-version: '3.10' 
-      
-  #     - name: Setup Inputs
-  #       id: getcount          
-  #       run: |          
-  #         echo "countenv=$(python -c "print([count for count in range(0,${{inputs.count}})])") >> "$GITHUB_OUTPUT"
-  generate-matrix-from-default:
-    if:  ${{ !inputs.count }}
+  generate-matrix:    
     runs-on: ubuntu-latest    
     outputs:
       count: ${{ steps.getcount.outputs.countenv }}
     steps:      
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10' 
-      
-      - name: Setup Inputs
+          python-version: '3.10'
+      - name: Setup Count
         id: getcount          
         run: |          
           # default 12 jobs
-          echo "countenv=$(python -c 'print([count for count in range(0,12)])')" >> "$GITHUB_OUTPUT"
+          [[ ${{inputs.count}} != false ]] && echo "countenv=$(python -c 'print([count for count in range(0,${{inputs.count}})])')" >> "$GITHUB_OUTPUT"
+          [[ ${{inputs.count}} = true ]] && echo "countenv=$(python -c 'print([count for count in range(0,12)])')" >> "$GITHUB_OUTPUT"
 
   
   workflow-test:
