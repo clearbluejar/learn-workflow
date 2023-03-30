@@ -52,7 +52,7 @@ jobs:
           pip install https://github.com/clearbluejar/cvedata/releases/download/v0.3.9/cvedata-0.3.9-py3-none-any.whl
           python -m cvedata.download
           # worfklow_dispatch
-          [ -n "${{inputs.gen_file_query}}" ] && && python gen_files.py --count ${{inputs.count}} ${{inputs.gen_file_query}}
+          [ -n "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{inputs.count}} ${{inputs.gen_file_query}}
           # default run
           [ -z "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{inputs.count}} --include source=10.0.20348.0-roles
       - uses: actions/upload-artifact@master
@@ -113,3 +113,14 @@ jobs:
     #   with:
     #     name: decompilations
     #     path: decompilations
+
+    
+
+
+
+
+
+
+    # clean up decompilations
+
+    # upload results
