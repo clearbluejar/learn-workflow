@@ -54,7 +54,7 @@ jobs:
           # worfklow_dispatch
           [ -n "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{inputs.count}} ${{inputs.gen_file_query}}
           # default run
-          [ -z "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{inputs.count}} --include source=10.0.20348.0-roles
+          [ -z "${{inputs.gen_file_query}}" ] && python gen_files.py --count 12 --include source=10.0.20348.0-roles
       - uses: actions/upload-artifact@master
         with:
           name: gen_files
