@@ -47,7 +47,7 @@ jobs:
       matrix:
         bins: [ "/bin/ls", "/bin/bash", "/bin/grep" ]
         count: [20]
-        counts: ${{fromJson(needs.generate-matrix-from-default.outputs.count)}}
+        counts: ${{fromJson(needs.generate-matrix.outputs.count)}}
 
     steps:
       - uses: actions/checkout@v3
