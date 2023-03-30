@@ -44,7 +44,7 @@ jobs:
         id: getcount          
         run: |          
           # default 12 jobs
-          echo "countenv=$(python -c "print([count for count in range(0,12)])") >> "$GITHUB_OUTPUT"
+          echo "countenv=$(python -c 'print([count for count in range(0,12)])'') >> "$GITHUB_OUTPUT"
 
   
   workflow-test:
