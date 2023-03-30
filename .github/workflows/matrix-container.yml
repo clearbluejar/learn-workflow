@@ -29,8 +29,8 @@ jobs:
         run: |          
           # default 12 jobs
           echo "${{inputs.count}}"
-          [[ "${{inputs.count}}" != "" ]] && echo "countenv=$(python -c 'print([count for count in range(0,${{inputs.count}})])')" >> "$GITHUB_OUTPUT"
-          [[ "${{inputs.count}}" = "" ]] && echo "countenv=$(python -c 'print([count for count in range(0,12)])')" >> "$GITHUB_OUTPUT"
+          [[ -n "${{inputs.count}}" ]] && echo "countenv=$(python -c 'print([count for count in range(0,${{inputs.count}})])')" >> "$GITHUB_OUTPUT"
+          [[ -z "${{inputs.count}}" = "" ]] && echo "countenv=$(python -c 'print([count for count in range(0,12)])')" >> "$GITHUB_OUTPUT"
         shell: bash
 
   
