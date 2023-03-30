@@ -28,8 +28,10 @@ jobs:
         id: getcount          
         run: |          
           # default 12 jobs
-          [[ ${{inputs.count}} != false ]] && echo "countenv=$(python -c 'print([count for count in range(0,${{inputs.count}})])')" >> "$GITHUB_OUTPUT"
-          [[ ${{inputs.count}} = true ]] && echo "countenv=$(python -c 'print([count for count in range(0,12)])')" >> "$GITHUB_OUTPUT"
+          echo "${{inputs.count}}"
+          [[ "${{inputs.count}}" != "" ]] && echo "countenv=$(python -c 'print([count for count in range(0,${{inputs.count}})])')" >> "$GITHUB_OUTPUT"
+          [[ "${{inputs.count}}" = "" ]] && echo "countenv=$(python -c 'print([count for count in range(0,12)])')" >> "$GITHUB_OUTPUT"
+        shell: bash
 
   
   workflow-test:
