@@ -30,7 +30,9 @@ jobs:
           # default 12 jobs
           echo "${{inputs.count}}"
           [ -n "${{inputs.count}}" ] && echo "countenv=$(python -c 'print([count for count in range(0,${{inputs.count}})])')" >> "$GITHUB_OUTPUT"
+          echo 1
           [ -z "${{inputs.count}}" ] && echo "countenv=$(python -c 'print([count for count in range(0,12)])')" >> "$GITHUB_OUTPUT"
+          echo 2
         shell: bash
 
   
