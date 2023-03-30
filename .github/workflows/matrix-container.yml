@@ -4,25 +4,69 @@ name: matrix-container
 
 on:
   workflow_dispatch:
+    inputs:
+      count:
+        description: 'Number of jobs to run'
+        required: true
+        type: string
+        default: 12
   push:
     branches: [ "main" ]
 
+
 jobs:
 
+  # generate-matrix-from-count:
+  #   if:  ${{ inputs.count }}
+  #   runs-on: ubuntu-latest    
+  #   outputs:
+  #     count: ${{ steps.getcount.outputs.countenv }}
+  #   steps:      
+  #     - uses: actions/setup-python@v4
+  #       with:
+  #         python-version: '3.10' 
+      
+  #     - name: Setup Inputs
+  #       id: getcount          
+  #       run: |          
+  #         echo "countenv=$(python -c "print([count for count in range(0,${{inputs.count}})])") >> "$GITHUB_OUTPUT"
+  generate-matrix-from-default:
+    if:  ${{ !inputs.count }}
+    runs-on: ubuntu-latest    
+    outputs:
+      count: ${{ steps.getcount.outputs.countenv }}
+    steps:      
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+      
+      - name: Setup Inputs
+        id: getcount          
+        run: |          
+          # default 12 jobs
+          echo "countenv=$(python -c "print([count for count in range(0,12)])") >> "$GITHUB_OUTPUT"
+
+  
   workflow-test:
+    needs: generate-matrix-from-default
 
     runs-on: ubuntu-latest
     # container:
     #   image: ghcr.io/clearbluejar/ghidrecomp:latest
     #   env:
     #     GHIDRA_INSTALL_DIR: "/ghidra"
-      
     strategy:
       fail-fast: false
       matrix:
         bins: [ "/bin/ls", "/bin/bash", "/bin/grep" ]
+        count: [20]
+        counts: [needs.generate-matrix-from-default.outputs.count]
+
     steps:
-    - uses: actions/checkout@v3    
+      - uses: actions/checkout@v3
+      - name: Echo Matrix
+        run: |
+          echo ${{ matrix.bins }}  ${{ matrix.count }}
     # - name: Run command in image
     #   run: |        
     #     whoami
@@ -34,21 +78,21 @@ jobs:
     #     cd /tmp
     #     ls /ghidra
     #     ghidrecomp -h
-    #     ghidrecomp ${{ matrix.bins }}
+    #     ghidrecomp ${{ matrix.bins }}  
     #   shell: bash
-    - name: Run make ci-build in dev container
-      uses: devcontainers/ci@v0.3
-      with:    
-        # [Optional] If you have a separate workflow like the one above
-        # to pre-build your container image, you can reference it here
-        # to speed up your application build workflows as well!
-        cacheFrom: ghcr.io/clearbluejar/ghidrecomp:latest
-        push: never
-        runCmd: |
-          pip install ghidrecomp
-          ghidrecomp ${{ matrix.bins }}
-    - name: Upload decompilations
-      uses: actions/upload-artifact@v3
-      with:
-        name: decompilations
-        path: decompilations
+    # - name: Run make ci-build in dev container
+    #   uses: devcontainers/ci@v0.3
+    #   with:    
+    #     # [Optional] If you have a separate workflow like the one above
+    #     # to pre-build your container image, you can reference it here
+    #     # to speed up your application build workflows as well!
+    #     cacheFrom: ghcr.io/clearbluejar/ghidrecomp:latest
+    #     push: never
+    #     runCmd: |
+    #       pip install ghidrecomp
+    #       ghidrecomp ${{ matrix.bins }}
+    # - name: Upload decompilations
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: decompilations
+    #     path: decompilations
