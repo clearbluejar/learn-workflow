@@ -165,12 +165,13 @@ jobs:
         with:
           name: decompilations
           path: decompilations
-      - name: Upload logs
+      - name: Upload bins
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: decomp_logs
-          path: bins/decomp_logs
+          name: bins
+          path: bins
+          retention-days: 5
     
 
 
