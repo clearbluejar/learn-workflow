@@ -157,6 +157,8 @@ jobs:
           push: never
           runCmd: |
             pip install ghidrecomp
+            # test pyhidra
+            python -c 'import pyhidra;pyhidra.start(True)'
             python run_decomp.py --id ${{ matrix.counts }}
 
       - name: Upload decompilations
