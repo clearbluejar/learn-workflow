@@ -21,7 +21,7 @@ on:
 
 env: 
   default-count: 12
-  default-limit: 12
+  default-limit: 100
 
 
 jobs:
@@ -127,7 +127,7 @@ jobs:
           echo 
           ls gen_files
           ls bins
-          jq -r 'to_entries[] | "\(.key)=\(.value)"' bins/dl_files${{ matrix.counts }}.json
+          jq -r 'to_entries[] | "\(.key)=\(.value)"' bins/meta/dl_files${{ matrix.counts }}.json
     # - name: Run command in image
     #   run: |        
     #     whoami
