@@ -64,6 +64,8 @@ jobs:
         with:
           name: gen_files
           path: gen_files
+          retention-days: 5
+          
 
   download-files:
     needs: build_files
@@ -89,6 +91,8 @@ jobs:
         with:
           name: bins
           path: bins
+          retention-days: 5
+
 
 
   workflow-test:
