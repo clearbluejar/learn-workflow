@@ -55,7 +55,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r gen-requirements.txt 
-          python -m cvedata.download
+          python -m cvedata.download --data-only
           # worfklow_dispatch
           [ -n "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{inputs.count}} ${{inputs.gen_file_query}}
           # default run
@@ -68,7 +68,7 @@ jobs:
           
 
   download-files:
-    needs: build_files
+    needs: [build_files, generate-matrix]
     runs-on: ubuntu-latest
 
     steps:
