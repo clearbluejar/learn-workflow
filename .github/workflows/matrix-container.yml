@@ -166,8 +166,9 @@ jobs:
           runCmd: |
             pip install ghidrecomp
             # test pyhidra
-            python -c 'import pyhidra;pyhidra.start(True)'
-            python run_decomp.py --id ${{ matrix.counts }}
+            #python -c 'import pyhidra;pyhidra.start(True)'
+            #python run_decomp.py --id ${{ matrix.counts }}
+            for bin in $(ls bins/*dll*);do  ghidrecomp $bin; done
 
       - name: Upload decompilations
         uses: actions/upload-artifact@v3
