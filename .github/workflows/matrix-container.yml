@@ -92,7 +92,7 @@ jobs:
 
 
   workflow-test:
-    needs: [generate-matrix, build_files]
+    needs: [generate-matrix, build_files,download-files]
 
     runs-on: ubuntu-latest
     # container:
