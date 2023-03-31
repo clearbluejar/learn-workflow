@@ -106,8 +106,8 @@ jobs:
 
 
   workflow-runner:
-    needs: [generate-matrix, build_file_lists,download-files]
-
+    #needs: [generate-matrix, build_file_lists,download-files]
+    needs: [generate-matrix, build_file_lists]
     runs-on: ubuntu-latest
     # container:
     #   image: ghcr.io/clearbluejar/ghidrecomp:latest
