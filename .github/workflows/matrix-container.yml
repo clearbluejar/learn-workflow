@@ -64,6 +64,7 @@ jobs:
           [ -n "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{inputs.count}} ${{inputs.gen_file_query}}
           # default run
           [ -z "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{env.default-count}} --include source=10.0.20348.0-roles --limit-list ${{env.default-limit}}
+          echo Hooray
       - uses: actions/upload-artifact@master
         with:
           name: gen_files
@@ -95,6 +96,7 @@ jobs:
           [ -n "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{ matrix.counts }}
           # default run
           [ -z "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{ matrix.counts }}
+          echo hooray
       - uses: actions/upload-artifact@master
         with:
           name: bins
