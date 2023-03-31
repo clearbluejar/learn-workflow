@@ -70,6 +70,10 @@ jobs:
   download-files:
     needs: [build_files, generate-matrix]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:        
+        counts: ${{fromJson(needs.generate-matrix.outputs.count)}}
 
     steps:
       - uses: actions/setup-python@v4
@@ -82,11 +86,11 @@ jobs:
           path: gen_files
       - name: Download files
         run: |
-          pip install -r gen-requirements.txt
+          pip install -r dl-requirements.txt
           # worfklow_dispatch
-          [ -n "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{fromJson(needs.generate-matrix.outputs.count)}} 
+          [ -n "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{ matrix.counts }}
           # default run
-          [ -z "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{fromJson(needs.generate-matrix.outputs.count)}}
+          [ -z "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{ matrix.counts }}
       - uses: actions/upload-artifact@master
         with:
           name: bins
