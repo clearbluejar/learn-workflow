@@ -114,7 +114,7 @@ actual_files, skipped_files = download_all_files(session, files_list, dl_path)
 meta_path = dl_path / 'meta'
 meta_path.mkdir(exist_ok=True)
 
-actual_files_path = meta_path / 'actual_files.json'
+actual_files_path = meta_path / f'dl_files{args.id}.json'
 actual_files_path.write_text(json.dumps(actual_files))
 skipped_files_path = meta_path / 'skipped_files.json'
 skipped_files_path.write_text(json.dumps(skipped_files))
