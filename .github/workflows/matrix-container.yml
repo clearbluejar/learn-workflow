@@ -84,9 +84,9 @@ jobs:
         run: |
           pip install -r gen-requirements.txt
           # worfklow_dispatch
-          [ -n "${{inputs.gen_file_query}}" ] && python get_files.py --count ${{inputs.count}} 
+          [ -n "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{fromJson(needs.generate-matrix.outputs.count)}} 
           # default run
-          [ -z "${{inputs.gen_file_query}}" ] && python get_files.py --count ${{env.default-count}}
+          [ -z "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{fromJson(needs.generate-matrix.outputs.count)}}
       - uses: actions/upload-artifact@master
         with:
           name: bins
@@ -95,7 +95,7 @@ jobs:
 
 
 
-  workflow-test:
+  workflow-${{fromJson(needs.generate-matrix.outputs.count)}}:
     needs: [generate-matrix, build_files,download-files]
 
     runs-on: ubuntu-latest
