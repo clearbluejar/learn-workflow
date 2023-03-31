@@ -64,7 +64,7 @@ jobs:
         with:
           name: gen_files
           path: gen_files
-          retention-days: 5
+          retention-days: 1
           
 
   download-files:
@@ -95,7 +95,7 @@ jobs:
         with:
           name: bins
           path: bins
-          retention-days: 5
+          retention-days: 1
 
 
 
@@ -124,9 +124,10 @@ jobs:
           path: bins
       - name: Echo Matrix
         run: |
-          echo ${{ matrix.counts }}
+          echo 
           ls gen_files
           ls bins
+          jq -r 'to_entries[] | "\(.key)=\(.value)"' bins/dl_files${{ matrix.counts }}.json
     # - name: Run command in image
     #   run: |        
     #     whoami
