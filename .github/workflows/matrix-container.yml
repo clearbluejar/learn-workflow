@@ -19,9 +19,11 @@ on:
     branches: [ "main" ]
 
 
-env: 
+env:
+  # how many runners   
   default-count: 12
-  default-limit: 100
+  # how long the lists are (potentially skipping valid files)
+  default-limit: 12
 
 
 jobs:
@@ -39,8 +41,10 @@ jobs:
         run: |                    
           echo Count set to: "${{inputs.count}}"
           [ -n "${{inputs.count}}" ] && echo "countenv=$(python -c 'print([count for count in range(0,${{inputs.count}})])')" >> "$GITHUB_OUTPUT"
+          echo Count set to: "${{inputs.count}}"
           # default 12 jobs
           [ -z "${{inputs.count}}" ] && echo "countenv=$(python -c 'print([count for count in range(0,${{env.default-count}})])')" >> "$GITHUB_OUTPUT"
+          echo Count set to: "${{inputs.count}}"
         shell: bash
 
   build_files:
@@ -154,6 +158,7 @@ jobs:
             python run_decomp.py --id ${{ matrix.counts }}
       - name: Upload decompilations
         uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: decompilations
           path: decompilations
