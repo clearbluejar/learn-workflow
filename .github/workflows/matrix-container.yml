@@ -95,7 +95,7 @@ jobs:
 
 
 
-  workflow-${{fromJson(needs.generate-matrix.outputs.count)}}:
+  workflow-runner:
     needs: [generate-matrix, build_files,download-files]
 
     runs-on: ubuntu-latest
