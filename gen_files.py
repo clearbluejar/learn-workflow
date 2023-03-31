@@ -1,7 +1,7 @@
 from pandas.api.types import infer_dtype
 from cvedata.win_verinfo import ALL_VERINFO_FULL_PATH, ALL_VERINFO_MERGED_PATH
 import pandas as pd
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import json
 import argparse
 
@@ -55,9 +55,6 @@ for key, val in includes:
     print(df.shape[0])
 
 
-print(f'Final file count: {df.shape[0]}')
-print(df['source'].value_counts())
-
 df = df.sort_values(by='size')
 
 print(df.head())
@@ -73,12 +70,13 @@ for i, file in enumerate(all_files_list):
     id = i % args.count
     bucket.setdefault(id, []).append(file)
 
+    print(f"Added {file['Name']} with size: {file['size'] /  1024} KB")
+
     if args.limit_list:
         if i / args.count > args.limit_list - 1:
             print(f'limiting lists by {args.limit_list}')
-            break
 
-    print(file['size'])
+            break
 
 
 files_path = Path('gen_files')
@@ -90,3 +88,28 @@ for i, files in bucket.items():
 
     print(f'Writing file: {path} with count: {len(bucket[i])}')
     path.write_text(json.dumps(bucket[i]))
+
+print(f'Final file count: {df.shape[0]}')
+
+sources_values = df['source'].value_counts()
+paths_values = df['VersionInfo.FileName'].apply(lambda x: PureWindowsPath(x).parent).value_counts()
+
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+
+    print(sources_values)
+    print(paths_values)
+
+meta_path = files_path / 'meta'
+meta_path.mkdir(exist_ok=True)
+
+sources_values_path = meta_path / 'sources_values.md'
+sources_values.to_markdown(sources_values_path)
+
+paths_values_path = meta_path / 'paths_values.md'
+paths_values.to_json(paths_values_path)
+
+df_path = meta_path / 'query_df.json'
+df.to_json(df_path, orient='split')
+
+args_path = meta_path / 'args.json'
+args_path.write_text(json.dumps(vars(args)))
