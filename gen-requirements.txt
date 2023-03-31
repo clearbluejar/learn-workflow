@@ -1,0 +1,1 @@
+git+https://github.com/clearbluejar/cvedata/archive/refs/heads/main.zip#egg=cvedata
