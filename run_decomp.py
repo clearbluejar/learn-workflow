@@ -4,7 +4,6 @@ import json
 from concurrent.futures import ThreadPoolExecutor  # pip install futures
 from concurrent import futures
 from subprocess import STDOUT, call
-import multiprocessing
 
 
 def rm_tree(pth):
@@ -17,13 +16,11 @@ def rm_tree(pth):
     pth.rmdir()
 
 
-# LIMIT = multiprocessing.cpu_count()
-LIMIT = 2
-
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument("--id", type=int, help="fileid to download from", required=True)
 parser.add_argument("--fl_path", help="File List Path", default='bins/meta')
+parser.add_argument("--proc-limit", help="concurrent process limit", type=int, default=2)
 
 
 args = parser.parse_args()
@@ -47,7 +44,7 @@ if log_path.exists():
 log_path.mkdir(exist_ok=True)
 
 
-with ThreadPoolExecutor(max_workers=LIMIT) as executor:
+with ThreadPoolExecutor(max_workers=args.proc_limit) as executor:
 
     log_paths = []
     for file_path in file_paths:

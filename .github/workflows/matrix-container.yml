@@ -165,7 +165,7 @@ jobs:
           push: never
           runCmd: |       
             source .env/bin/activate     
-            python run_decomp.py --id ${{ matrix.counts }}
+            python run_decomp.py --id ${{ matrix.counts }}  --proc-limit 3
             
       - name: Zip decomps
         run:  |

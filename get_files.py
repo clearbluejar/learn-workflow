@@ -74,14 +74,18 @@ def download_all_files(session: Session, files: list, dl_path: Path):
         for future in futures.as_completed(future_to_url):
             status, file, pe_ver, bin_data = future.result()
 
-            if pe_ver:
+            if status == 200 and bin_data is not None:
+
+                if pe_ver is None:
+                    print(
+                        f"WARN: Could not get pe_ver from {file['url']} {status} appending one from {file['VersionInfo.FileVersion']}")
+                    pe_ver = f"{file['VersionInfo.FileVersion']}"
+
                 file_path = dl_path / f"{'.'.join([file['Name'].lower(),pe_ver])}"
                 file_path.write_bytes(bin_data)
                 actual_urls.append([status, file, pe_ver, str(file_path)])
-
             else:
-                print(f"Could not get pe_ver from {file['url']} {status}")
-                skipped_urls.append([status, file])
+                skipped_urls.append([status, file, pe_ver])
 
     return actual_urls, skipped_urls
 
