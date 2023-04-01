@@ -1,0 +1,43 @@
+# This workflow will run commands in a container on multiple jobs
+
+name: matrix-container
+
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: 'Number of jobs to run'
+        required: true
+        type: string
+        default: 12
+      gen_file_query:
+        required: true
+        type: string
+        default: source=10.0.20348.0-roles
+      
+  push:
+    branches: [ "main" ]
+        path: .github/workflows/run-image.yml
+
+
+jobs:
+  run-container:    
+    runs-on: ubuntu-latest
+    steps:
+      - name: run container
+        uses: devcontainers/ci@v0.3
+        with:    
+          # [Optional] If you have a separate workflow like the one above
+          # to pre-build your container image, you can reference it here
+          # to speed up your application build workflows as well!
+          cacheFrom: ghcr.io/clearbluejar/ghidrecomp:latest
+          push: never
+          runCmd: |
+              wget https://msdl.microsoft.com/download/symbols/afd.sys/50989142a9000/afd.sys -o afd.sys.10.0.22621.1415
+              ghidrecomp afd.sys.10.0.22621.1415
+      - name: Upload decompilations
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+            name: decompilations
+            path: decompilations
