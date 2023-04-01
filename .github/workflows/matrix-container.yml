@@ -9,19 +9,19 @@ on:
         description: 'Number of jobs to run'
         required: true
         type: string
-        default: 12
+        default: 20
       gen_file_query:
         required: true
         type: string
-        default: source=10.0.20348.0-roles
+        default: source=10.0.20348.0-roles --include import_funcs=CreateFile
       
   push:
     branches: [ "main" ]
 
 
 env:
-  # how many runners   
-  default-count: 12
+  # how many runners
+  default-count: 20
   # how long the lists are (potentially skipping valid files)
   default-limit: 12
 
@@ -168,7 +168,10 @@ jobs:
             python run_decomp.py --id ${{ matrix.counts }}
             
       - name: Zip decomps
-        run:  zip -r decompilations${{ matrix.counts }}.zip decompilations/
+        run:  |
+          zip -qq -r decompilations${{ matrix.counts }}.zip decompilations/
+          unzip -l decompilations${{ matrix.counts }}.zip
+
       - name: Upload decompilations
         uses: actions/upload-artifact@v3
         if: always()
@@ -195,8 +198,10 @@ jobs:
       - name: combine all zips
         run: |
           mkdir decompilations
-          for x in runner_decomps/*.zip; do unzip -d decompilations -o -u $x ; done
-          zip -r decompilations.zip decompilations
+          for x in runner_decomps/*.zip; do unzip -qq -d decompilations -o -u $x ; done
+          echo starting zipping $(date) 
+          zip -qq -r decompilations.zip decompilations
+          echo total file count: $(unzip -l decompilations.zip | wc -l)
       - name: Upload decompilations          
         uses: actions/upload-artifact@v3
         if: always()
