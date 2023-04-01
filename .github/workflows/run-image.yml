@@ -36,7 +36,7 @@ jobs:
           push: never
           runCmd: |
               source .env/bin/activate
-              wget https://msdl.microsoft.com/download/symbols/afd.sys/50989142a9000/afd.sys -o afd.sys.10.0.22621.1415
+              wget https://msdl.microsoft.com/download/symbols/afd.sys/50989142a9000/afd.sys -O afd.sys.10.0.22621.1415
               ghidrecomp afd.sys.10.0.22621.1415
       - name: Upload decompilations
         uses: actions/upload-artifact@v3
