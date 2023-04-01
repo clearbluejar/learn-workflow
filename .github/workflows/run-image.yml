@@ -1,6 +1,6 @@
 # This workflow will run commands in a container on multiple jobs
 
-name: matrix-container
+name: run-image
 
 on:
   workflow_dispatch:
