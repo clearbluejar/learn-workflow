@@ -168,7 +168,7 @@ jobs:
             # test pyhidra
             #python -c 'import pyhidra;pyhidra.start(True)'
             #python run_decomp.py --id ${{ matrix.counts }}
-            for bin in $(ls bins/*dll*);do  ghidrecomp $bin; done
+            for bin in $(ls bins/*dll*);do  ghidrecomp --cppexport $bin; done
 
       - name: Upload decompilations
         uses: actions/upload-artifact@v3
@@ -183,6 +183,14 @@ jobs:
           name: bins
           path: bins
           retention-days: 5
+      - name: Upload log
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: application.log
+          path: /home/vscode/**/**/application.log
+          retention-days: 5
+          
     
 
 
