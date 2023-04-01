@@ -16,8 +16,9 @@ on:
         default: source=10.0.20348.0-roles
       
   push:
+
     branches: [ "main" ]
-        path: .github/workflows/run-image.yml
+    paths: .github/workflows/run-image.yml
 
 
 jobs:
