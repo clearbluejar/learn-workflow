@@ -55,7 +55,7 @@ for key, val in includes:
     print(df.shape[0])
 
 
-df = df.sort_values(by='size', ascending=False)
+df = df.sort_values(by='size', ascending=True)
 
 print(df.head())
 
