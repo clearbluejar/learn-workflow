@@ -173,7 +173,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: decompilations
+          name: runner_decomps
           path: decompilations*.zip
       - name: Upload bins
         uses: actions/upload-artifact@v3
@@ -183,7 +183,27 @@ jobs:
           path: bins
           retention-days: 5
           
-    
+  combine_zips:
+    needs: workflow-runner
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@master
+        with:
+          name: runner_decomps
+          path: runner_decomps
+      - name: combine all zips
+        run: |
+          mkdir decompilations
+          for x in *.zip; do unzip -d decompilations -o -u $x ; done
+          zip -r decompilations.zip decompilations
+      - name: Upload decompilations          
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: decompilations
+          path: decompilations.zip
+          retention-days: 5  
 
 
 
