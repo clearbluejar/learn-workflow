@@ -163,8 +163,9 @@ jobs:
           # to speed up your application build workflows as well!
           cacheFrom: ghcr.io/clearbluejar/ghidrecomp:latest
           push: never
-          runCmd: |
-            pip install ghidrecomp
+          runCmd: |       
+            source .env/bin/activate     
+            ghidrecomp /bin/ls
             # test pyhidra
             #python -c 'import pyhidra;pyhidra.start(True)'
             #python run_decomp.py --id ${{ matrix.counts }}
