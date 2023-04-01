@@ -24,7 +24,8 @@ on:
 jobs:
   run-container:    
     runs-on: ubuntu-latest
-    steps:
+    steps:     
+      - uses: actions/checkout@v3
       - name: run container
         uses: devcontainers/ci@v0.3
         with:    
