@@ -183,7 +183,7 @@ jobs:
           path: bins
           retention-days: 5
           
-  combine_zips:
+  update-artifacts:
     needs: workflow-runner
     runs-on: ubuntu-latest
 
@@ -195,7 +195,7 @@ jobs:
       - name: combine all zips
         run: |
           mkdir decompilations
-          for x in *.zip; do unzip -d decompilations -o -u $x ; done
+          for x in runner_decomps/*.zip; do unzip -d decompilations -o -u $x ; done
           zip -r decompilations.zip decompilations
       - name: Upload decompilations          
         uses: actions/upload-artifact@v3
