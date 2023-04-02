@@ -27,7 +27,7 @@ env:
   # how many runners
   default-count: 20
   # how long the lists are (potentially skipping valid files)
-  default-limit: 3
+  default-limit: 5
 
 
 jobs:
@@ -48,7 +48,7 @@ jobs:
           echo Count set to: "${{inputs.count}}"
           # default 12 jobs
           [ -z "${{inputs.count}}" ] && echo "countenv=$(python -c 'print([count for count in range(0,${{env.default-count}})])')" >> "$GITHUB_OUTPUT"
-          echo Count set to: "${{inputs.count}}"
+          echo This command needs to return success despite the line above failing wiht -z! Echo will return success. Done.
         shell: bash
 
   build_file_lists:
@@ -70,7 +70,7 @@ jobs:
           [ -n "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{inputs.count}} ${{inputs.gen_file_query}}
           # default run
           [ -z "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{env.default-count}} --include source=10.0.20348.0-roles --include import_funcs=CreateFile --limit-list ${{env.default-limit}}
-          echo Hooray
+          echo This command needs to return success despite the line above failing wiht -z! Echo will return success. Done.
       - uses: actions/upload-artifact@master
         with:
           name: gen_files
@@ -137,7 +137,7 @@ jobs:
           push: never
           runCmd: |       
             source .env/bin/activate     
-            python run_decomp.py --id ${{ matrix.counts }} --proc-limit 3
+            python run_decomp.py --id ${{ matrix.counts }} --proc-limit 4
             
       # - name: Zip decomps
       #   run:  |
