@@ -64,6 +64,8 @@ jobs:
         run: |
           pip install -r gen-requirements.txt 
           python -m cvedata.download --data-only
+      - name: Generate File Lists
+        run: |          
           # worfklow_dispatch
           [ -n "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{inputs.count}} ${{inputs.gen_file_query}}
           # default run
@@ -75,40 +77,6 @@ jobs:
           path: gen_files
           retention-days: 1
           
-
-  # download-files:
-  #   needs: [build_file_lists, generate-matrix]
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:        
-  #       counts: ${{fromJson(needs.generate-matrix.outputs.count)}}
-
-  #   steps:
-  #     - uses: actions/setup-python@v4
-  #       with:
-  #         python-version: '3.10'
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/download-artifact@master
-  #       with:
-  #         name: gen_files
-  #         path: gen_files
-  #     - name: Download files
-  #       run: |
-  #         pip install -r dl-requirements.txt
-  #         # worfklow_dispatch
-  #         [ -n "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{ matrix.counts }}
-  #         # default run
-  #         [ -z "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{ matrix.counts }}
-  #         echo hooray
-  #     - uses: actions/upload-artifact@master
-  #       with:
-  #         name: bins
-  #         path: bins
-  #         retention-days: 1
-
-
-
   workflow-runner:
     #needs: [generate-matrix, build_file_lists,download-files]
     needs: [generate-matrix, build_file_lists]
@@ -175,6 +143,13 @@ jobs:
         run:  |
           zip -qq -r decompilations${{ matrix.counts }}.zip decompilations/
           unzip -l decompilations${{ matrix.counts }}.zip
+
+      - name: Zip decomps
+        run:  |
+          tar -zcf decompilations${{ matrix.counts }}.tar.gz decompilations/
+          tar -ztvf decompilations${{ matrix.counts }}.tar.gz
+          du -h decompilations${{ matrix.counts }}.tar.gz
+          du -h decompilations${{ matrix.counts }}.zip
 
       - name: Upload decompilations
         uses: actions/upload-artifact@v3
