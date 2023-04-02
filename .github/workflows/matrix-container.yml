@@ -1,9 +1,10 @@
 # This workflow will run commands in a container on multiple jobs
 
 name: matrix-container
+run-name: matix-container - count - ${{ inputs.count }} - ${{inputs.run_name}}
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:    
     inputs:
       count:
         description: 'Number of jobs to run'
@@ -14,6 +15,9 @@ on:
         required: true
         type: string
         default: source=10.0.20348.0-roles --include import_funcs=CreateFile
+      run_name:
+        required: false
+        type: string
       
   push:
     branches: [ "main" ]
