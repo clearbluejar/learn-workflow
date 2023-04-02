@@ -108,12 +108,12 @@ jobs:
           [ -z "${{inputs.gen_file_query}}" ] && python get_files.py --id ${{ matrix.counts }}
           echo hooray
      
-      - name: Echo Matrix
-        run: |
-          echo 
-          ls gen_files
-          ls bins
-          jq -r 'to_entries[] | "\(.key)=\(.value)"' bins/meta/dl_files${{ matrix.counts }}.json          
+      # - name: Echo Matrix
+      #   run: |
+      #     echo 
+      #     ls gen_files
+      #     ls bins
+      #     jq -r 'to_entries[] | "\(.key)=\(.value)"' bins/meta/dl_files${{ matrix.counts }}.json          
     # - name: Run command in image
     #   run: |        
     #     whoami
@@ -139,24 +139,24 @@ jobs:
             source .env/bin/activate     
             python run_decomp.py --id ${{ matrix.counts }}  --proc-limit 3
             
-      - name: Zip decomps
-        run:  |
-          zip -qq -r decompilations${{ matrix.counts }}.zip decompilations/
-          unzip -l decompilations${{ matrix.counts }}.zip
+      # - name: Zip decomps
+      #   run:  |
+      #     zip -qq -r decompilations${{ matrix.counts }}.zip decompilations/
+      #     unzip -l decompilations${{ matrix.counts }}.zip
 
-      - name: Zip decomps
+      - name: Tar GZ decomps
         run:  |
-          tar -zcf decompilations${{ matrix.counts }}.tar.gz decompilations/
-          tar -ztvf decompilations${{ matrix.counts }}.tar.gz
+          tar -zcf decompilations${{ matrix.counts }}.tar.gz decompilations/*
+          # tar -ztvf decompilations${{ matrix.counts }}.tar.gz
           du -h decompilations${{ matrix.counts }}.tar.gz
-          du -h decompilations${{ matrix.counts }}.zip
 
       - name: Upload decompilations
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: runner_decomps
-          path: decompilations*.zip
+          path: decompilations*.tar.gz
+          retention-days: 5
       - name: Upload bins
         uses: actions/upload-artifact@v3
         if: always()
@@ -164,6 +164,21 @@ jobs:
           name: bins
           path: bins
           retention-days: 5
+      - name: Upload decomp_logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: decomp_logs
+          path: decomp_logs
+          retention-days: 5
+      - name: Upload decomp_logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: decomp_logs
+          path: decomp_logs
+          retention-days: 5            
+            
           
   update-artifacts:
     needs: workflow-runner
@@ -174,21 +189,34 @@ jobs:
         with:
           name: runner_decomps
           path: runner_decomps
-      - name: combine all zips
+      # - name: combine all zips
+      #   run: |
+      #     mkdir decompilations
+      #     for x in runner_decomps/*.zip; do unzip -qq -d decompilations -o -u $x ; done
+      #     echo starting zipping $(date) 
+      #     zip -qq -r decompilations.zip decompilations
+      #     echo total file count: $(unzip -l decompilations.zip | wc -l)
+      - name: combine all tar.gz
         run: |
           mkdir decompilations
-          for x in runner_decomps/*.zip; do unzip -qq -d decompilations -o -u $x ; done
+          for x in runner_decomps/*.zip; do tar xzf $x -C decompilations ; done
           echo starting zipping $(date) 
-          zip -qq -r decompilations.zip decompilations
-          echo total file count: $(unzip -l decompilations.zip | wc -l)
+          tar czf decompilations.tar.gz decompilations
+          echo total file count: $(tar -ztvf decompilations.tar.gz | wc -l)
+      # - name: Upload decompilations          
+      #   uses: actions/upload-artifact@v3
+      #   if: always()
+      #   with:
+      #     name: decompilations
+      #     path: decompilations.zip
+      #     retention-days: 5          
       - name: Upload decompilations          
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: decompilations
-          path: decompilations.zip
-          retention-days: 5  
-
+          path: decompilations.tar.gz
+          retention-days: 5     
 
 
 
