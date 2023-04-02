@@ -37,7 +37,7 @@ for status, file, pe_ver, file_path in files_info_list:
 
     file_paths.append(Path(file_path))
 
-log_path = file_list_path.parent.parent / 'decomp_logs'
+log_path = Path('decomp_logs')
 # fresh logs
 if log_path.exists():
     rm_tree(log_path)

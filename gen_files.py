@@ -108,7 +108,7 @@ sources_values.to_markdown(sources_values_path)
 paths_values_path = meta_path / 'paths_values.md'
 paths_values.to_json(paths_values_path)
 
-df_path = meta_path / 'query_df.json'
+df_path = meta_path / 'pandas_query_df.json'
 df.to_json(df_path, orient='split')
 
 args_path = meta_path / 'args.json'

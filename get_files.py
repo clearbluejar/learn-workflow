@@ -93,7 +93,7 @@ def download_all_files(session: Session, files: list, dl_path: Path):
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--id", type=int, help="fileid to download from", required=True)
-parser.add_argument("--dl_path", help="Download Path", default='bins')
+parser.add_argument("--dl_path", help="Download Base Path", default='bins')
 
 args = parser.parse_args()
 
@@ -105,6 +105,7 @@ all_bins_path.mkdir(exist_ok=True)
 gen_files_path = Path('gen_files')
 dl_path = Path(args.dl_path)
 dl_path.mkdir(exist_ok=True)
+
 files_list_path = gen_files_path / f'files{args.id}.json'
 
 files_list = json.loads(files_list_path.read_text())
@@ -112,8 +113,10 @@ files_list = json.loads(files_list_path.read_text())
 session = Session()
 
 start = datetime.now()
+dl_bin_path = dl_path / 'downloaded'
+dl_bin_path.mkdir(exist_ok=True)
 # files_list = files_list[:10]
-actual_files, skipped_files = download_all_files(session, files_list, dl_path)
+actual_files, skipped_files = download_all_files(session, files_list, dl_bin_path)
 
 meta_path = dl_path / 'meta'
 meta_path.mkdir(exist_ok=True)
