@@ -27,7 +27,7 @@ env:
   # how many runners
   default-count: 20
   # how long the lists are (potentially skipping valid files)
-  default-limit: 12
+  default-limit: 3
 
 
 jobs:
@@ -137,7 +137,7 @@ jobs:
           push: never
           runCmd: |       
             source .env/bin/activate     
-            python run_decomp.py --id ${{ matrix.counts }}  --proc-limit 3
+            python run_decomp.py --id ${{ matrix.counts }} --proc-limit 3
             
       # - name: Zip decomps
       #   run:  |
@@ -170,14 +170,7 @@ jobs:
         with:
           name: decomp_logs
           path: decomp_logs
-          retention-days: 5
-      - name: Upload decomp_logs
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: decomp_logs
-          path: decomp_logs
-          retention-days: 5            
+          retention-days: 5   
             
           
   update-artifacts:
@@ -199,7 +192,7 @@ jobs:
       - name: combine all tar.gz
         run: |
           mkdir decompilations
-          for x in runner_decomps/*.zip; do tar xzf $x -C decompilations ; done
+          for x in runner_decomps/*.tar.gz; do tar xzf $x -C decompilations ; done
           echo starting zipping $(date) 
           tar czf decompilations.tar.gz decompilations
           echo total file count: $(tar -ztvf decompilations.tar.gz | wc -l)
