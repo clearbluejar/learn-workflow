@@ -127,4 +127,4 @@ skipped_files_path = meta_path / f'skipped_files{args.id}.json'
 skipped_files_path.write_text(json.dumps(skipped_files))
 
 print(f'Downloaded {len(actual_files)} and skipped {len(skipped_files)} in {(datetime.now() - start).seconds} seconds')
-print(f"Bins dir has {len(list(dl_path.glob('*')))} files downloaded")
+print(f"Bins dir has {len(list(dl_bin_path.glob('*')))} files downloaded")
