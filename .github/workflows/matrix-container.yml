@@ -101,6 +101,12 @@ jobs:
         with:
           name: gen_files
           path: gen_files
+      - name: Restore Ghidra Project Cache
+        uses: actions/cache/restore@v3
+        with: 
+          path: |
+            .ghidra_projects
+          key: ghidra-projects-cache-${{ hashFiles('gen_files/args.json') }}
       - name: Download files
         run: |
           pip install -r dl-requirements.txt
@@ -141,7 +147,13 @@ jobs:
             source .env/bin/activate
 
             python run_decomp.py --id ${{ matrix.counts }} --proc-limit 3
-            
+
+      - name: Cache Ghidra Projects
+        uses: actions/cache/save@v3
+        with: 
+          path: |
+            .ghidra_projects
+          key: ghidra-projects-cache-${{ hashFiles('gen_files/args.json') }}
       # - name: Zip decomps
       #   run:  |
       #     zip -qq -r decompilations${{ matrix.counts }}.zip decompilations/
