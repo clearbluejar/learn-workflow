@@ -91,6 +91,8 @@ jobs:
         counts: ${{fromJson(needs.generate-matrix.outputs.count)}}
 
     steps:
+      - name: Collect Workflow Telemetry
+        uses: runforesight/workflow-telemetry-action@v1
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
@@ -136,7 +138,8 @@ jobs:
           cacheFrom: ghcr.io/clearbluejar/ghidrecomp:latest
           push: never
           runCmd: |       
-            source .env/bin/activate     
+            source .env/bin/activate
+
             python run_decomp.py --id ${{ matrix.counts }} --proc-limit 3
             
       # - name: Zip decomps
