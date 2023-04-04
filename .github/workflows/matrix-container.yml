@@ -136,7 +136,7 @@ jobs:
     #     ghidrecomp -h
     #     ghidrecomp ${{ matrix.bins }}  
     #   shell: bash
-      - name: Run make ci-build in dev container
+      - name: Run make ci-build in dev container 
         uses: devcontainers/ci@v0.3
         with:    
           # [Optional] If you have a separate workflow like the one above
