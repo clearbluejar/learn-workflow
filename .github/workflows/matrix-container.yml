@@ -146,7 +146,8 @@ jobs:
           push: never
           runCmd: |       
             source .env/bin/activate
-
+            # prime pyhdira by calling it once before launching
+            python -c 'import pyhidra; pyhidra.start(True)'            
             python run_decomp.py --id ${{ matrix.counts }} --proc-limit 3
 
       # - name: Cache Ghidra Projects
