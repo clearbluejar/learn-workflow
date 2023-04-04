@@ -107,7 +107,7 @@ jobs:
         with: 
           path: |
             .ghidra_projects
-            key: ghidra-projects-cache-${{ matrix.counts }}-${{ hashFiles('gen_files/meta/args.json') }}
+          key: ghidra-projects-cache-${{ matrix.counts }}-${{ hashFiles('gen_files/meta/args.json') }}
       - name: Download files
         run: |
           pip install -r dl-requirements.txt
