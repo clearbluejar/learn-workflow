@@ -135,7 +135,7 @@ jobs:
     #     ls /ghidra
     #     ghidrecomp -h
     #     ghidrecomp ${{ matrix.bins }}  
-    #   shell: bash
+    #   shell: bash 
       - name: Run make ci-build in dev container 
         uses: devcontainers/ci@v0.3
         with:    
@@ -173,7 +173,7 @@ jobs:
           name: runner_decomps
           path: decompilations*.tar.gz
           retention-days: 5
-      - name: Upload decompilations
+      - name: Upload projects
         uses: actions/upload-artifact@v3
         if: always()
         with:
