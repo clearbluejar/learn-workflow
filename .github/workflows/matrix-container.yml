@@ -102,12 +102,12 @@ jobs:
         with:
           name: gen_files
           path: gen_files
-      - name: Restore Ghidra Project Cache
-        uses: actions/cache/restore@v3
-        with: 
-          path: |
-            .ghidra_projects
-          key: ghidra-projects-cache-${{ hashFiles('gen_files/meta/args.json') }}
+      # - name: Restore Ghidra Project Cache
+      #   uses: actions/cache/restore@v3
+      #   with: 
+      #     path: |
+      #       .ghidra_projects
+      #     key: ghidra-projects-cache-${{ hashFiles('gen_files/meta/args.json') }}
       - name: Download files
         run: |
           pip install -r dl-requirements.txt
@@ -164,8 +164,9 @@ jobs:
       - name: Tar GZ decomps
         run:  |
           tar -zcf decompilations${{ matrix.counts }}.tar.gz decompilations/*
-          # tar -ztvf decompilations${{ matrix.counts }}.tar.gz
-          du -h decompilations${{ matrix.counts }}.tar.gz
+          # tar -ztvf decompilations${{ matrix.counts }}.tar.gz          
+          echo '### Hello world! ' >> $GITHUB_STEP_SUMMARY
+          echo $(du -h decompilations${{ matrix.counts }}.tar.gz) >> $GITHUB_STEP_SUMMARY
 
       - name: Upload decompilations
         uses: actions/upload-artifact@v3
@@ -207,16 +208,16 @@ jobs:
         with:
           name: runner_decomps
           path: runner_decomps      
-      - name: Download projects          
-        uses: actions/download-artifact@master      
-        with:
-          name: projects
-          path: .ghidra_projects         
-      - name: Download gen_files
-        uses: actions/download-artifact@master      
-        with:
-          name: gen_files
-          path: gen_files           
+      # - name: Download projects          
+      #   uses: actions/download-artifact@master      
+      #   with:
+      #     name: projects
+      #     path: .ghidra_projects         
+      # - name: Download gen_files
+      #   uses: actions/download-artifact@master      
+      #   with:
+      #     name: gen_files
+      #     path: gen_files           
       # - name: combine all zips
       #   run: |
       #     mkdir decompilations
@@ -238,12 +239,12 @@ jobs:
       #     name: decompilations
       #     path: decompilations.zip
       #     retention-days: 5          
-      - name: Cache Ghidra Projects
-        uses: actions/cache/save@v3
-        with: 
-          path: |
-            .ghidra_projects
-          key: ghidra-projects-cache-${{ hashFiles('gen_files/meta/args.json') }}
+      # - name: Cache Ghidra Projects
+      #   uses: actions/cache/save@v3
+      #   with: 
+      #     path: |
+      #       .ghidra_projects
+      #     key: ghidra-projects-cache-${{ hashFiles('gen_files/meta/args.json') }}
       - name: Upload decompilations          
         uses: actions/upload-artifact@v3
         if: always()
