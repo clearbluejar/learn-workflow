@@ -1,5 +1,6 @@
 from pandas.api.types import infer_dtype
 from cvedata.win_verinfo import ALL_VERINFO_FULL_PATH, ALL_VERINFO_MERGED_PATH
+from cvedata.procmon import PROCMON_MODLOAD_JSON_PATH
 import pandas as pd
 from pathlib import Path, PureWindowsPath
 import json
@@ -106,10 +107,39 @@ sources_values_path = meta_path / 'sources_values.md'
 sources_values.to_markdown(sources_values_path)
 
 paths_values_path = meta_path / 'paths_values.md'
-paths_values.to_json(paths_values_path)
+paths_values.to_markdown(paths_values_path)
 
 df_path = meta_path / 'pandas_query_df.json'
-df.to_json(df_path, orient='split')
+df.reset_index(names='sha256', inplace=True)
+df.to_json(df_path)
+
+df_proc_md_path = meta_path / 'proc_pandas_query.md'
+df_proc_path = meta_path / 'proc_pandas_query.json'
+
+
+proc_df = pd.read_json(PROCMON_MODLOAD_JSON_PATH)
+proc_df = proc_df.reset_index(names=['Path'])
+proc_df['is_priv'] = proc_df['User'].astype(str).str.contains('SYSTEM|SERVICE|LOCAL')
+
+df = df.rename(columns={'VersionInfo.FileName': 'Path'})
+merged_df = proc_df.merge(df, on='Path', how='inner')
+merged_df.to_markdown(df_proc_md_path, tablefmt="github")
+merged_df.to_json(df_proc_path)
+
+x_sources_values = merged_df['source_x'].value_counts()
+y_sources_values = merged_df['source_y'].value_counts()
+paths_values = merged_df['Path'].apply(lambda x: PureWindowsPath(x).parent).value_counts()
+
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+
+    print(x_sources_values)
+    print(y_sources_values)
+    print(paths_values)
+
+
+pd.read_json(df_proc_path)
+pd.read_json(df_path)
+
 
 args_path = meta_path / 'args.json'
 args_path.write_text(json.dumps(vars(args)))
