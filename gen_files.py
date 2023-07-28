@@ -29,7 +29,9 @@ parser.add_argument(
 args = parser.parse_args()
 
 if args.count < 1:
-    raise f'Count must be 1 or higher. count = {args.count}'
+    parser.print_help()
+    print(f'Error: Count must be 1 or higher. count = {args.count}')
+    exit(1)
 
 print(args)
 
@@ -53,6 +55,8 @@ print(df.head())
 # apply includes
 
 for key, val in includes:
+    if df.shape[0] == 0:
+        raise Exception(f'Query {includes} resulted in empty dateframe. Nothing to process')  # can't do anything with
     assert key in df.columns, f'{key}: not found in {df.columns} check - -includes'
     val_type = type(df[key].iloc[0])
     if val_type == list:

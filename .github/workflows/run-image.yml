@@ -13,7 +13,7 @@ on:
       gen_file_query:
         required: true
         type: string
-        default: source=10.0.20348.0-roles
+        default: source=windows-2022-10.0.20348.0
       
   push:
 
@@ -32,7 +32,7 @@ jobs:
           # [Optional] If you have a separate workflow like the one above
           # to pre-build your container image, you can reference it here
           # to speed up your application build workflows as well!
-          cacheFrom: ghcr.io/clearbluejar/ghidrecomp:latest
+          cacheFrom: ghcr.io/clearbluejar/ghidra-python:latest
           push: never
           runCmd: |
               source .env/bin/activate
