@@ -174,28 +174,28 @@ jobs:
           echo $(du -h decompilations${{ matrix.counts }}.tar.gz) >> $GITHUB_STEP_SUMMARY
 
       - name: Upload decompilations
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: runner_decomps
           path: decompilations*.tar.gz
           retention-days: 5
       - name: Upload projects
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: projects
           path: .ghidra_projects/*
           retention-days: 5          
       - name: Upload bins
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: bins
           path: bins
           retention-days: 5
       - name: Upload decomp_logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: decomp_logs
@@ -209,7 +209,7 @@ jobs:
 
     steps:
       - name: Download runner artifacts 
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v4
         with:
           name: runner_decomps
           path: runner_decomps      
