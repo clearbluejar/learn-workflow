@@ -168,7 +168,7 @@ jobs:
 
       - name: Tar GZ decomps
         run:  |
-          tar -zcf decompilations${{ matrix.counts }}.tar.gz ghidrecomps/bins/* ghidrecomps/bsim_xmls
+          tar -zcf decompilations${{ matrix.counts }}.tar.gz ghidrecomps/bins/* ghidrecomps/bsim-xmls
           # tar -ztvf decompilations${{ matrix.counts }}.tar.gz          
           echo '### Hello world! ' >> $GITHUB_STEP_SUMMARY
           echo $(du -h decompilations${{ matrix.counts }}.tar.gz) >> $GITHUB_STEP_SUMMARY
