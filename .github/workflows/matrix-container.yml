@@ -177,28 +177,28 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: runner_decomps-{{ matrix.counts }}
+          name: runner_decomps-${{ matrix.counts }}
           path: decompilations*.tar.gz
           retention-days: 5
       - name: Upload projects
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: projects-{{ matrix.counts }}
+          name: projects-${{ matrix.counts }}
           path: .ghidra_projects/*
           retention-days: 5          
       - name: Upload bins
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: bins-{{ matrix.counts }}
+          name: bins-${{ matrix.counts }}
           path: bins
           retention-days: 5
       - name: Upload decomp_logs
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: decomp_logs-{{ matrix.counts }}
+          name: decomp_logs-${{ matrix.counts }}
           path: decomp_logs
           retention-days: 5   
             
