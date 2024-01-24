@@ -49,7 +49,7 @@ with ThreadPoolExecutor(max_workers=args.proc_limit) as executor:
     log_paths = []
     for file_path in file_paths:
         file_log_path = log_path / f'{file_path.name}.log'
-        cmd = f'ghidrecomp --va {file_path}'
+        cmd = f'ghidrecomp --va {file_path} --bsim'
         # cmd = f'pwd'
 
         log_paths.append([file_log_path, cmd])
