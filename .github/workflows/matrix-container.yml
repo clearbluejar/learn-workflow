@@ -75,7 +75,7 @@ jobs:
           # default run
           [ -z "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{env.default-count}} --include source=windows-2022-10.0.20348.0 --include import_funcs=CreateFile --limit-list ${{env.default-limit}}
           echo This command needs to return success despite the line above failing wiht -z! Echo will return success. Done.
-      - uses: actions/upload-artifact@master
+      - uses: actions/upload-artifact@v4
         with:
           name: gen_files
           path: gen_files
@@ -184,21 +184,21 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: projects
+          name: projects-{{ matrix.counts }}
           path: .ghidra_projects/*
           retention-days: 5          
       - name: Upload bins
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: bins
+          name: bins-{{ matrix.counts }}
           path: bins
           retention-days: 5
       - name: Upload decomp_logs
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: decomp_logs
+          name: decomp_logs-{{ matrix.counts }}
           path: decomp_logs
           retention-days: 5   
             
