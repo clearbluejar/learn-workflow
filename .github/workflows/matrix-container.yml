@@ -177,7 +177,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: runner_decomps
+          name: runner_decomps-{{ matrix.counts }}
           path: decompilations*.tar.gz
           retention-days: 5
       - name: Upload projects
@@ -208,11 +208,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download runner artifacts 
+      - name: Download all runner artifacts 
         uses: actions/download-artifact@v4
         with:
-          name: runner_decomps
           path: runner_decomps      
+      - name: Display structure of downloaded files
+        run: ls -R runner_decomps
       # - name: Download projects          
       #   uses: actions/download-artifact@master      
       #   with:
@@ -233,7 +234,7 @@ jobs:
       - name: combine all tar.gz
         run: |
           mkdir decompilations
-          for x in runner_decomps/*.tar.gz; do tar xzf $x -C decompilations ; done
+          for x in runner_decomps/decomp*.tar.gz; do tar xzf $x -C decompilations ; done
           echo starting zipping $(date) 
           tar czf decompilations.tar.gz decompilations
           echo total file count: $(tar -ztvf decompilations.tar.gz | wc -l)
