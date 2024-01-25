@@ -238,13 +238,24 @@ jobs:
       #     echo starting zipping $(date) 
       #     zip -qq -r decompilations.zip decompilations
       #     echo total file count: $(unzip -l decompilations.zip | wc -l)
-      - name: combine all tar.gz
+      # - name: combine all tar.gz
+      #   run: |
+      #     mkdir decompilations
+      #     for x in runner_decomps/decomp*.tar.gz; do tar xzf $x -C decompilations ; done
+      #     echo starting zipping $(date) 
+      #     tar czf decompilations.tar.gz decompilations
+      #     echo total file count: $(tar -ztvf decompilations.tar.gz | wc -l)
+      - name: combine artifacts
         run: |
           mkdir decompilations
-          for x in runner_decomps/decomp*.tar.gz; do tar xzf $x -C decompilations ; done
+          for x in runner_decomps/runner_decomps-*/decomp*.tar.gz; do tar xzf $x -C decompilations ; done
           echo starting zipping $(date) 
-          tar czf decompilations.tar.gz decompilations
-          echo total file count: $(tar -ztvf decompilations.tar.gz | wc -l)
+          tar czf decompilations.tar.gz -C decompilations/ghidrecomps/bins/*
+          tar czf bsim.tar.gz decompilations/ghidrecomps/bsim-xmls/*
+          mkdir bins
+          for x in runner_decomps/bins-*/downloaded/*; do cp $x bins ; done
+          tar czf all_bins.tar.gz bins
+          echo total file count: $(tar -ztvf decompilations.tar.gz | wc -l)      
       # - name: Upload decompilations          
       #   uses: actions/upload-artifact@v3
       #   if: always()
@@ -262,10 +273,23 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: decompilations
+          name: all_decompilations
           path: decompilations.tar.gz
-          retention-days: 5      
-
+          retention-days: 15
+      - name: Upload extra          
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: all_bsim
+          path: bsim.tar.gz
+          retention-days: 15         
+      - name: Upload all bins          
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: all_bins
+          path: bins.tar.gz
+          retention-days: 15  
 
     # clean up decompilations
 
