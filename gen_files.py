@@ -2,6 +2,7 @@ import pandas as pd
 from pathlib import Path, PureWindowsPath
 import json
 import argparse
+import re
 
 from pandas.api.types import infer_dtype
 from cvedata.win_verinfo import ALL_VERINFO_FULL_PATH, ALL_VERINFO_MERGED_PATH
@@ -21,7 +22,7 @@ group.add_argument("--include", nargs='+',
                     action='extend', help="filter key=value")
 group.add_argument("--kb", nargs='+',
                     action='extend', help="example: KB5034204")
-
+parser.add_argument("--regex", action='store_true',help="Use regex with include")
 parser.add_argument("--count", type=int,
                     help="number of files to generate", required=True)
 parser.add_argument("--require-proc-info",
@@ -61,13 +62,25 @@ if args.include is not None:
         if df.shape[0] == 0:
             raise Exception(f'Query {includes} resulted in empty dateframe. Nothing to process')  # can't do anything with
         assert key in df.columns, f'{key}: not found in {df.columns} check - -includes'
+        
         val_type = type(df[key].iloc[0])
-        if val_type == list:
-            df = df[df[key].apply(lambda x: any(
-                [val.lower() in item.lower() for item in x]))]
+
+        if not args.regex:
+            if val_type == list:
+                df = df[df[key].apply(lambda x: any(
+                    [val.lower() in item.lower() for item in x]))]
+            else:
+                    df = df[df[key].apply(lambda x: val.lower() in x.lower())]
         else:
-            df = df[df[key] == val]
+            if val_type == list:
+                df = df[df[key].apply(lambda x: any(
+                    [bool(re.search(val, item,re.IGNORECASE)) for item in x]))]
+            else:
+                df = df[df[key].apply(lambda x: bool(re.search(val, x,re.IGNORECASE)))]
+             
         print(df.shape[0])
+        print(df.head())
+        #df['VersionInfo.FileName'].to_json('test.json',orient='records')
 
 
     df = df.sort_values(by='size', ascending=True)
