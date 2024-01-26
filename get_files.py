@@ -10,6 +10,11 @@ from datetime import datetime
 CONNECTIONS = 10
 TIMEOUT = 10
 
+def clean_filename(filename: str):
+    invalid = '<>:"/\|?* '
+
+    for char in invalid:
+        filename = filename.replace(char, '-')
 
 def get_pe_version(bin: Union[str, Path, bytes]) -> str:
     """
@@ -118,8 +123,11 @@ def download_all_files(session: Session, files: list, dl_path: Path):
                         f"WARN: Could not get pe_ver from {file['url']} {status} appending one from df {stored_version}")
                     pe_ver = stored_version
 
+
                 filename = file.get('Name') or file.get('filename')
-                file_path = dl_path / f"{'.'.join([filename.lower(),pe_arch,pe_ver])}"
+                full_filename = f"{'.'.join([filename.lower(),pe_arch,pe_ver])}"
+                clean_filename(full_filename)
+                file_path = dl_path / full_filename
                 file_path.write_bytes(bin_data)
                 actual_urls.append([status, file, pe_ver, str(file_path)])
             else:
