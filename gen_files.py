@@ -102,11 +102,14 @@ else:
 
     for kb in kbs:
         kb_info = get_kb_info(kb)
-        print(kb_info)
+        
+        #print(kb_info)
+        print(f'kb_info: update_len:{len(kb_info['updated'])} date:{kb_info['release']} build:{kb_info['build']} ')
         all_files_list.extend(get_kb_file_urls(kb_info))
-        print(all_files_list)
+        #print(all_files_list)
 
-    print(all_files_list)
+    for file in all_files_list:
+        print(file)
 
     #conver all_files_list to expected
     
