@@ -35,6 +35,39 @@ def get_pe_version(bin: Union[str, Path, bytes]) -> str:
 
     return ver_info['FileVersion'].split(' ')[0]
 
+def get_pe_arch(bin: Union[str, Path, bytes], verbose=False) -> str:
+    """
+    get arch from binary
+    """
+
+    arch = None
+    m_type = None
+
+    try:
+        if isinstance(bin, Path) or isinstance(bin, str):
+            pe = pefile.PE(bin, fast_load=True)
+        elif isinstance(bin, bytes):
+            pe = pefile.PE(data=bin, fast_load=True)
+
+        m_type = pe.FILE_HEADER.Machine
+
+    except Exception as ex:
+        if verbose:
+            print(f'Error: {ex} with {bin}')
+
+    match m_type:
+        case 332:  # pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_I386']
+            arch = 'x86'
+
+        case 34404:  # pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_AMD64']
+            arch = 'x64'
+
+        case 43620:  # pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_ARM64']
+            arch = 'arm64'
+        case _:
+            raise ValueError(f'Unknow machine type found in pe {bin}')
+
+    return arch
 
 def download_verify_bin(session: Session, file: str, timeout=10) -> Tuple[bytes, str]:
     """
@@ -42,6 +75,7 @@ def download_verify_bin(session: Session, file: str, timeout=10) -> Tuple[bytes,
     """
 
     pe_ver = None
+    pe_arch = None
     bin_data = None
     status = None
 
@@ -54,13 +88,15 @@ def download_verify_bin(session: Session, file: str, timeout=10) -> Tuple[bytes,
         if status == 200:
             bin_data = response.content
             pe_ver = get_pe_version(bin_data)
+            pe_arch = get_pe_arch(bin_data)
         else:
             print(f"Error: failed to download {url} : {status}")
 
     except Exception as ex:
         print(f"Error downloading: {url} error: {ex}")
+        bin_data = None
 
-    return [status, file, pe_ver, bin_data]
+    return [status, file, pe_ver, pe_arch,bin_data]
 
 
 def download_all_files(session: Session, files: list, dl_path: Path):
@@ -72,16 +108,18 @@ def download_all_files(session: Session, files: list, dl_path: Path):
         future_to_url = (executor.submit(download_verify_bin, session, file, TIMEOUT) for file in files)
 
         for future in futures.as_completed(future_to_url):
-            status, file, pe_ver, bin_data = future.result()
+            status, file, pe_ver, pe_arch, bin_data = future.result()
 
             if status == 200 and bin_data is not None:
 
                 if pe_ver is None:
+                    stored_version = file.get('VersionInfo.FileVersion') or file.get('version')
                     print(
-                        f"WARN: Could not get pe_ver from {file['url']} {status} appending one from {file['VersionInfo.FileVersion']}")
-                    pe_ver = f"{file['VersionInfo.FileVersion']}"
+                        f"WARN: Could not get pe_ver from {file['url']} {status} appending one from df {stored_version}")
+                    pe_ver = stored_version
 
-                file_path = dl_path / f"{'.'.join([file['Name'].lower(),pe_ver])}"
+                filename = file.get('Name') or file.get('filename')
+                file_path = dl_path / f"{'.'.join([filename.lower(),pe_arch,pe_ver])}"
                 file_path.write_bytes(bin_data)
                 actual_urls.append([status, file, pe_ver, str(file_path)])
             else:
