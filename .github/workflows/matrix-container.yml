@@ -207,6 +207,7 @@ jobs:
   update-artifacts:
     needs: workflow-runner
     runs-on: ubuntu-latest
+    if: '!cancelled()'
 
     steps:
       - name: Download all runner artifacts 
