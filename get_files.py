@@ -6,15 +6,13 @@ import pefile
 import argparse
 import json
 from datetime import datetime
+import re
 
 CONNECTIONS = 10
 TIMEOUT = 10
 
 def clean_filename(filename: str):
-    invalid = '<>:"/\|?* '
-
-    for char in invalid:
-        filename = filename.replace(char, '-')
+    return re.sub(r'[\\/*?:"<>|]',"-",filename)
 
 def get_pe_version(bin: Union[str, Path, bytes]) -> str:
     """
@@ -121,12 +119,12 @@ def download_all_files(session: Session, files: list, dl_path: Path):
                     stored_version = file.get('VersionInfo.FileVersion') or file.get('version')
                     print(
                         f"WARN: Could not get pe_ver from {file['url']} {status} appending one from df {stored_version}")
-                    pe_ver = stored_version
+                    pe_ver = clean_filename(stored_version)
 
 
                 filename = file.get('Name') or file.get('filename')
                 full_filename = f"{'.'.join([filename.lower(),pe_arch,pe_ver])}"
-                clean_filename(full_filename)
+                full_filename = clean_filename(full_filename)
                 file_path = dl_path / full_filename
                 file_path.write_bytes(bin_data)
                 actual_urls.append([status, file, pe_ver, str(file_path)])
