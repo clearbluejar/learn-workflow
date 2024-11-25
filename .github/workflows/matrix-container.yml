@@ -68,13 +68,14 @@ jobs:
           repository: 'clearbluejar/cvedata'
           latest: true
           fileName: '*'
-          tag: 'v0.3.29'
+          token: ${{ secrets.CDATA_TOKEN }}
           out-file-path: 'cdata'
       - name: Install dependencies
         run: |
           #pip install -r gen-requirements.txt           
           #pip freeze
           #python -m cvedata.download --data-only
+          ls cdata
           pip install cdata/cvedata-*.whl       
           pip list -v
           boom13
