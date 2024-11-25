@@ -70,7 +70,7 @@ jobs:
         run: |
           echo "${{ secrets.CDATA_TOKEN }}" | gh auth login --with-token
           gh auth status
-          #RELEASE_ID=$(gh release list -R clearbluejar/cvedata -L 1 --json tagName -q '.[0].tagName')
+          RELEASE_ID=$(gh release list -R clearbluejar/cvedata -L 1 --json tagName -q '.[0].tagName')
           gh release download "v0.3.29" -R clearbluejar/cvedata -D /tmp/cdata
       - name: Install dependencies
         run: |
@@ -79,8 +79,14 @@ jobs:
           #python -m cvedata.download --data-only
           ls /tmp/cdata
           pip install /tmp/cdata/cvedata-*.whl       
-          pip list -v
-          boom13
+          PIP_LIB_PATH=$(pip list -v | grep cvedata | cut -w -f 3)
+          echo $PIP_LIB_PATH
+          pushd $PIP_LIB_PATH
+          pushd cvedata/data 
+          unzip /tmp/cdata/cvedata-*.whl 
+          popd
+          popd
+          
           
       - name: Generate File Lists
         run: |          
