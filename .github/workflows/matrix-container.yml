@@ -71,7 +71,7 @@ jobs:
 
       - name: Download release artifacts
         run: |
-          RELEASE_ID=$(gh release list -R clearbluejar/cvedata -L 1 --json id -q '.[0].id')
+          RELEASE_ID=$(gh release list -R clearbluejar/cvedata -L 1 --json tagName -q '.[0].tagName')
           gh release download $RELEASE_ID -R clearbluejar/cvedata -D /tmp/cdata
       - name: Install dependencies
         run: |
