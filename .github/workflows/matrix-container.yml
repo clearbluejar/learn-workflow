@@ -66,11 +66,9 @@ jobs:
       - name: Install GitHub CLI
         run: sudo apt-get install gh
 
-      - name: Authenticate GitHub CLI
-        run: echo "${{ secrets.CDATA_TOKEN }}" | gh auth login --with-token
-
       - name: Download release artifacts
         run: |
+          echo "${{ secrets.CDATA_TOKEN }}" | gh auth login --with-token
           RELEASE_ID=$(gh release list -R clearbluejar/cvedata -L 1 --json tagName -q '.[0].tagName')
           gh release download $RELEASE_ID -R clearbluejar/cvedata -D /tmp/cdata
       - name: Install dependencies
