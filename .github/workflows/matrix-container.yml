@@ -83,9 +83,7 @@ jobs:
           echo $PIP_LIB_PATH
           pushd $PIP_LIB_PATH
           pushd cvedata/data
-          echo hiiiiiii
-          pwd
-          unzip /tmp/cdata/cvedata-*.whl 
+          unzip /tmp/cdata/cvedata_data.zip
           popd
           popd
           
