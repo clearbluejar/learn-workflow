@@ -69,8 +69,9 @@ jobs:
       - name: Download release artifacts
         run: |
           echo "${{ secrets.CDATA_TOKEN }}" | gh auth login --with-token
-          RELEASE_ID=$(gh release list -R clearbluejar/cvedata -L 1 --json tagName -q '.[0].tagName')
-          gh release download $RELEASE_ID -R clearbluejar/cvedata -D /tmp/cdata
+          gh auth status
+          #RELEASE_ID=$(gh release list -R clearbluejar/cvedata -L 1 --json tagName -q '.[0].tagName')
+          gh release download "v0.3.29" -R clearbluejar/cvedata -D /tmp/cdata
       - name: Install dependencies
         run: |
           #pip install -r gen-requirements.txt           
