@@ -63,11 +63,21 @@ jobs:
         with:
           python-version: '3.10'
       - uses: actions/checkout@v3
+      - uses: robinraju/release-downloader@v1
+        with:
+          repository: 'clearbluejar/cvedata'
+          latest: true
+          fileName: '*'
+          out-file-path: 'cdata'
       - name: Install dependencies
         run: |
-          pip install -r gen-requirements.txt           
-          pip freeze
-          python -m cvedata.download --data-only
+          #pip install -r gen-requirements.txt           
+          #pip freeze
+          #python -m cvedata.download --data-only
+          pip install cdata/cvedata-*.whl       
+          pip list -v
+          boom13
+          
       - name: Generate File Lists
         run: |          
           # worfklow_dispatch
