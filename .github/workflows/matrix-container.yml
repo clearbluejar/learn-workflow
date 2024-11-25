@@ -82,7 +82,9 @@ jobs:
           PIP_LIB_PATH=$(pip list -v | grep cvedata | tr -s ' ' | cut -d ' ' -f 3)
           echo $PIP_LIB_PATH
           pushd $PIP_LIB_PATH
-          pushd cvedata/data 
+          pushd cvedata/data
+          echo hiiiiiii
+          pwd
           unzip /tmp/cdata/cvedata-*.whl 
           popd
           popd
