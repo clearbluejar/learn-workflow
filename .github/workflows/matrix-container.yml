@@ -79,7 +79,7 @@ jobs:
           #python -m cvedata.download --data-only
           ls /tmp/cdata
           pip install /tmp/cdata/cvedata-*.whl       
-          PIP_LIB_PATH=$(pip list -v | grep cvedata | cut -w -f 3)
+          PIP_LIB_PATH=$(pip list -v | grep cvedata | tr -s ' ' | cut -d ' ' -f 3)
           echo $PIP_LIB_PATH
           pushd $PIP_LIB_PATH
           pushd cvedata/data 
