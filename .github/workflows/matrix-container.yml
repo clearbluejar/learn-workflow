@@ -68,6 +68,7 @@ jobs:
           repository: 'clearbluejar/cvedata'
           latest: true
           fileName: '*'
+          tag: 'v0.3.29'
           out-file-path: 'cdata'
       - name: Install dependencies
         run: |
