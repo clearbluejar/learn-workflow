@@ -63,20 +63,23 @@ jobs:
         with:
           python-version: '3.10'
       - uses: actions/checkout@v3
-      - uses: robinraju/release-downloader@v1
-        with:
-          repository: 'clearbluejar/cve-markdown-charts'
-          latest: true
-          fileName: '*'
-          token: ${{ secrets.CDATA_TOKEN }}
-          out-file-path: 'cdata'
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
+
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.CDATA_TOKEN }}" | gh auth login --with-token
+
+      - name: Download release artifacts
+        run: |
+          RELEASE_ID=$(gh release list -R clearbluejar/cvedata -L 1 --json id -q '.[0].id')
+          gh release download $RELEASE_ID -R clearbluejar/cvedata -D /tmp/cdata
       - name: Install dependencies
         run: |
           #pip install -r gen-requirements.txt           
           #pip freeze
           #python -m cvedata.download --data-only
-          ls cdata
-          pip install cdata/cvedata-*.whl       
+          ls /tmp/cdata
+          pip install /tmp/cdata/cvedata-*.whl       
           pip list -v
           boom13
           
