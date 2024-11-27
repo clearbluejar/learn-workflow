@@ -37,7 +37,7 @@ args = parser.parse_args()
 if args.count < 1:
     parser.print_help()
     print(f'Error: Count must be 1 or higher. count = {args.count}')
-    exit(1)
+    exit(1) 
 
 print(args)
 
@@ -59,9 +59,11 @@ if args.include is not None:
     # apply includes
 
     for key, val in includes:
+
+        print(f'Filtering {key}={val}')
         if df.shape[0] == 0:
             raise Exception(f'Query {includes} resulted in empty dateframe. Nothing to process')  # can't do anything with
-        assert key in df.columns, f'{key}: not found in {df.columns} check - -includes'
+        assert key in df.columns, f'{key}: not found in {df.columns} check --includes key=value'
         
         val_type = type(df[key].iloc[0])
 
@@ -81,7 +83,6 @@ if args.include is not None:
         print(df.shape[0])
         print(df.head())
         #df['VersionInfo.FileName'].to_json('test.json',orient='records')
-
 
     df = df.sort_values(by='size', ascending=True)
     df.reset_index(names='sha256', inplace=True)
