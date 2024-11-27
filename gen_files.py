@@ -98,7 +98,13 @@ if args.include is not None:
     print(df.head())
 
     if args.require_proc_info:
+        print(merged_df.shape[0])
+        print(merged_df.head())
+        merged_df = merged_df[merged_df['is_priv'] == True]
+        print(merged_df.shape[0])
+        print(merged_df.head())
         all_files_list = merged_df.to_dict(orient='records')
+
     else:
         all_files_list = df.to_dict(orient='records')
 
