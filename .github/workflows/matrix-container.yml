@@ -14,7 +14,7 @@ on:
       gen_file_query:
         required: true
         type: string
-        default: source=windows-2022-10.0.20348.0 --include import_funcs=CreateFile
+        default: --source=win2022-azure-roles-10.0.20348.0 --include import_funcs=CreateFile
       run_name:
         required: false
         type: string
@@ -93,7 +93,7 @@ jobs:
           # worfklow_dispatch
           [ -n "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{inputs.count}} ${{inputs.gen_file_query}}
           # default run
-          [ -z "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{env.default-count}} --include source=windows-2022-10.0.20348.0 --include import_funcs=CreateFile --limit-list ${{env.default-limit}}
+          [ -z "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{env.default-count}} --include source=win2022-azure-roles-10.0.20348.0 --include import_funcs=CreateFile --limit-list ${{env.default-limit}}
           echo This command needs to return success despite the line above failing wiht -z! Echo will return success. Done.
       - uses: actions/upload-artifact@v4 
         with:
@@ -323,8 +323,10 @@ jobs:
           echo total file count bsim: $(tar -ztvf bsim.tar.gz | wc -l)   
           echo total file count bsim: $(tar -ztvf bsim.tar.gz | wc -l) 
 
-          ls runner_decomps/sg*
-          tar czf all_sg.tar.gz runner_decomps/sg*/semgrep*.json runner_decomps/sg*/semgrep*.txt
+          mkdir sgs
+          ls runner_decomps/sg-* | head -n 100
+          for x in runner_decomps/sg-*/*; do cp $x sgs ; done
+          tar czf all_sg.tar.gz sgs
       # - name: Upload decompilations          
       #   uses: actions/upload-artifact@v3
       #   if: always()
