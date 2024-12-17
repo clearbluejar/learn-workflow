@@ -30,7 +30,7 @@ env:
   # how many runners
   default-count: 20
   # how long the lists are (potentially skipping valid files)
-  default-limit: 5
+  default-limit: 3
 
 
 jobs:
@@ -187,6 +187,8 @@ jobs:
         with:
           repository: clearbluejar/semgrep-rules
           path: semgrep-rules
+          token: ${{ secrets.CDATA_TOKEN }} # `GH_PAT` is a secret that contains your PAT
+    
 
       - name: scan
         run:  |
