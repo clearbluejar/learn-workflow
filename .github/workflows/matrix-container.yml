@@ -196,7 +196,7 @@ jobs:
           for x in ghidrecomps/bins/*/decomps/; do
             parent_dir=$(basename $(dirname $x))
             echo $parent_dir
-            semgrep --config=semgrep-rules/c $x --json-output=semgrep_${parent_dir}.json > semgrep_${parent_dir}_stdout.txt
+            semgrep --config=semgrep-rules/c $x/* --json-output=semgrep_${parent_dir}.json > semgrep_${parent_dir}_stdout.txt
           done
           ls
           echo '### Hello world! ' >> $GITHUB_STEP_SUMMARY
