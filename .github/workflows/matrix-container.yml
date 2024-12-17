@@ -95,7 +95,7 @@ jobs:
           # default run
           [ -z "${{inputs.gen_file_query}}" ] && python gen_files.py --count ${{env.default-count}} --include source=windows-2022-10.0.20348.0 --include import_funcs=CreateFile --limit-list ${{env.default-limit}}
           echo This command needs to return success despite the line above failing wiht -z! Echo will return success. Done.
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4 
         with:
           name: gen_files
           path: gen_files
