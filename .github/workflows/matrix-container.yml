@@ -196,7 +196,7 @@ jobs:
           for x in ghidrecomps/bins/*/decomps/; do
             parent_dir=$(basename $(dirname $x))
             echo $parent_dir
-            semgrep --config=semgrep-rules/c $x/* --json-output=semgrep_${parent_dir}.json > semgrep_${parent_dir}_stdout.txt
+            semgrep --no-git-ignore --config=semgrep-rules/c $x --json-output=semgrep_${parent_dir}.json > semgrep_${parent_dir}_stdout.txt
           done
           ls
           echo '### Hello world! ' >> $GITHUB_STEP_SUMMARY
@@ -326,6 +326,8 @@ jobs:
           mkdir sgs
           ls runner_decomps/sg-* | head -n 100
           for x in runner_decomps/sg-*/*; do cp $x sgs ; done
+          ls
+          ls sgs
           tar czf all_sg.tar.gz sgs
       # - name: Upload decompilations          
       #   uses: actions/upload-artifact@v3
@@ -366,7 +368,7 @@ jobs:
         if: always()
         with:
           name: sg-results-${{inputs.run_name}}
-          path: sg.tar.gz
+          path: all_sg.tar.gz
           retention-days: 15 
     # clean up decompilations
 
