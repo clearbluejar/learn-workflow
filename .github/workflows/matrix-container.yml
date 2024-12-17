@@ -62,7 +62,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install GitHub CLI
         run: sudo apt-get install gh
 
@@ -182,7 +182,35 @@ jobs:
             python -m pyhidra.install_plugins           
             python run_decomp.py --id ${{ matrix.counts }} --proc-limit 3
 
-      # - name: Cache Ghidra Projects
+      - name: Checkout tools repo
+        uses: actions/checkout@v4
+        with:
+          repository: clearbluejar/semgrep-rules
+          path: semgrep-rules
+
+      - name: scan
+        run:  |
+          pip install semgrep
+          for x in ghidrecomps/bins/*/decomps/; do
+            parent_dir=$(basename $(dirname $x))
+            echo $parent_dir
+            semgrep --config=semgrep-rules/c $x --json-output=semgrep_${parent_dir}.json > semgrep_${parent_dir}_stdout.txt
+          done
+          ls
+          echo '### Hello world! ' >> $GITHUB_STEP_SUMMARY
+          echo $(du -h decompilations${{ matrix.counts }}.tar.gz) >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload sg
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sg-${{ matrix.counts }}
+          path: |
+            semgrep*.json
+            semgrep*.txt
+          retention-days: 5
+        
+    # - name: Cache Ghidra Projects
       #   uses: actions/cache/save@v3
       #   with: 
       #     path: |
@@ -192,6 +220,14 @@ jobs:
       #   run:  |
       #     zip -qq -r decompilations${{ matrix.counts }}.zip decompilations/
       #     unzip -l decompilations${{ matrix.counts }}.zip
+
+      # - name: Upload gzfs
+      #   uses: actions/upload-artifact@v4
+      #   if: always()
+      #   with:
+      #     name: gzfs-${{ matrix.counts }}
+      #     path: ghidrecomps/gzfs/*.gzf
+      #     retention-days: 5
 
       - name: Tar GZ decomps
         run:  |
@@ -230,7 +266,7 @@ jobs:
     if: '!cancelled()'
 
     steps:
-      - name: Download all runner artifacts 
+      - name: Download all artifacts 
         uses: actions/download-artifact@v4
         with:
           path: runner_decomps      
@@ -241,7 +277,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: all_things
-          path: runner_decomps          
+          path: runner_decomps
       # - name: Download projects          
       #   uses: actions/download-artifact@master      
       #   with:
@@ -271,13 +307,22 @@ jobs:
           mkdir decompilations
           for x in runner_decomps/runner_decomps-*/decomp*.tar.gz; do tar xzf $x -C decompilations ; done
           echo starting zipping $(date)
-          ls -R decompilations
+          ls -R decompilations | head
           tar czf decompilations.tar.gz decompilations/ghidrecomps/bins/*
+          echo hiiiiii
+          ls -R decompilations/ghidrecomps/bsim-xmls/ | head -n 100
+          ls -R decompilations/ghidrecomps/bsim-xmls/ | wc
+          
           tar czf bsim.tar.gz decompilations/ghidrecomps/bsim-xmls/*
           mkdir bins
           for x in runner_decomps/bins-*/downloaded/*; do cp $x bins ; done
           tar czf all_bins.tar.gz bins
-          echo total file count: $(tar -ztvf decompilations.tar.gz | wc -l)      
+          echo total file count decomps: $(tar -ztvf decompilations.tar.gz | wc -l) 
+          echo total file count bsim: $(tar -ztvf bsim.tar.gz | wc -l)   
+          echo total file count bsim: $(tar -ztvf bsim.tar.gz | wc -l) 
+
+          ls runner_decomps/sg*
+          tar czf all_sg.tar.gz runner_decomps/sg*/semgrep*.json runner_decomps/sg*/semgrep*.txt
       # - name: Upload decompilations          
       #   uses: actions/upload-artifact@v3
       #   if: always()
@@ -312,6 +357,12 @@ jobs:
           name: all_bins
           path: bins.tar.gz
           retention-days: 15  
-
+      - name: Upload sg       
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: sg-results-${{inputs.run_name}}
+          path: sg.tar.gz
+          retention-days: 15 
     # clean up decompilations
 
