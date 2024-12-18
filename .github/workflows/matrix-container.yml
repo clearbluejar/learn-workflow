@@ -14,7 +14,7 @@ on:
       gen_file_query:
         required: true
         type: string
-        default: --source=win2022-azure-roles-10.0.20348.0 --include import_funcs=CreateFile
+        default: --include source=win2022-azure-roles-10.0.20348.0 --include import_funcs=CreateFile
       run_name:
         required: false
         type: string
@@ -196,7 +196,7 @@ jobs:
           for x in ghidrecomps/bins/*/decomps/; do
             parent_dir=$(basename $(dirname $x))
             echo $parent_dir
-            semgrep --no-git-ignore --config=semgrep-rules/c $x --json-output=semgrep_${parent_dir}.json > semgrep_${parent_dir}_stdout.txt
+            semgrep --no-git-ignore --config=semgrep-rules/c $x --max-lines-per-finding=100 --sarif-output=semgrep_${parent_dir}.sarif --json-output=semgrep_${parent_dir}.json > semgrep_${parent_dir}_stdout.log
           done
           ls
           echo '### Hello world! ' >> $GITHUB_STEP_SUMMARY
@@ -209,7 +209,8 @@ jobs:
           name: sg-${{ matrix.counts }}
           path: |
             semgrep*.json
-            semgrep*.txt
+            semgrep*.log
+            semgrep*.sarif
           retention-days: 5
         
     # - name: Cache Ghidra Projects
