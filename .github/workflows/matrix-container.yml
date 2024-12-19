@@ -271,12 +271,16 @@ jobs:
     if: '!cancelled()'
 
     steps:
+      - name: Disk space check
+        run: df -h
       - name: Download all artifacts 
         uses: actions/download-artifact@v4
         with:
-          path: runner_decomps      
+          path: runner_decomps
+      - name: Disk space check2
+        run: df -h      
       - name: Display structure of downloaded files
-        run: ls -R runner_decomps
+        run: find runner_decomps/ -maxdepth 2
 
       # - name: upload all artifacts
       #   uses: actions/upload-artifact@v4
@@ -307,26 +311,45 @@ jobs:
       #     echo starting zipping $(date) 
       #     tar czf decompilations.tar.gz decompilations
       #     echo total file count: $(tar -ztvf decompilations.tar.gz | wc -l)
-      - name: combine artifacts
+      - name: combine artifacts decompilations
         run: |
+          df -h
           mkdir decompilations
-          for x in runner_decomps/runner_decomps-*/decomp*.tar.gz; do tar xzf $x -C decompilations ; done
+          for x in runner_decomps/runner_decomps-*/decomp*.tar.gz; do
+            echo Processing $x
+            tar xzf $x -C decompilations
+          done
+          df -h
+          rm -rf runner_decomps/runner_decomps-*
+          df -h
+          ls -R decompilations/ghidrecomps | head -n 100
+                   
           echo starting zipping $(date)
-          ls -R decompilations | head
-          tar czf decompilations.tar.gz decompilations/ghidrecomps/bins/*
+          tar cvzf decompilations.tar.gz decompilations/ghidrecomps/bins/*
+          df -h
+          rm -rf decompilations/ghidrecomps/bins/
+          echo total file count decomps: $(tar -ztvf decompilations.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
+          df -h
           echo hiiiiii
+
+      - name: combine artifacts bsim
+        run: |           
+          # bsims
           ls -R decompilations/ghidrecomps/bsim-xmls/ | head -n 100
           ls -R decompilations/ghidrecomps/bsim-xmls/ | wc
-          echo total file count decomps: $(tar -ztvf decompilations.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
-          
           tar czf bsim.tar.gz decompilations/ghidrecomps/bsim-xmls/*
+          rm -rf decompilations/ghidrecomps/bsim-xmls
           echo total file count bsim: $(tar -ztvf bsim.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
-
+      
+      - name: combine artifacts bins
+        run: | 
           mkdir bins
           for x in runner_decomps/bins-*/downloaded/*; do cp $x bins ; done
           tar czf all_bins.tar.gz bins
           echo total file count bins: $(tar -ztvf all_bins.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
 
+      - name: combine artifacts sgs
+        run: | 
           mkdir sgs
           ls runner_decomps/sg-* | head -n 100
           for x in runner_decomps/sg-*/*; do cp $x sgs ; done
@@ -334,10 +357,12 @@ jobs:
           ls sgs
           tar czf all_sg.tar.gz sgs
           echo total file count sgs: $(tar -ztvf all_sg.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
-
+      - name: combine artifacts gzfs
+        run: | 
           mkdir gzfs
+          df -h
           ls runner_decomps/gzfs-*| head -n 100
-          for x in runner_decomps/gzfs-*/*.gzf; do mv $x gzfs ; done
+          for x in runner_decomps/gzfs-*/*; do cp $x gzfs ; done
           ls gzfs
           tar czf all_gzfs.tar.gz gzfs
           echo total file count gzfs: $(tar -ztvf all_gzfs.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
