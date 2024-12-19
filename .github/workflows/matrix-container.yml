@@ -318,6 +318,7 @@ jobs:
           for x in runner_decomps/runner_decomps-*/decomp*.tar.gz; do
             echo Processing $x
             tar xzf $x -C decompilations
+            rm $x
           done
           df -h
           rm -rf runner_decomps/runner_decomps-*
