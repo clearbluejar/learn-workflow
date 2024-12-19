@@ -325,7 +325,7 @@ jobs:
           ls -R decompilations/ghidrecomps | head -n 100
                    
           echo starting zipping $(date)
-          tar cvzf decompilations.tar.gz decompilations/ghidrecomps/bins/*
+          tar czf decompilations.tar.gz decompilations/ghidrecomps/bins/*
           df -h
           rm -rf decompilations/ghidrecomps/bins/
           echo total file count decomps: $(tar -ztvf decompilations.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
@@ -344,7 +344,7 @@ jobs:
       - name: combine artifacts bins
         run: | 
           mkdir bins
-          for x in runner_decomps/bins-*/downloaded/*; do cp $x bins ; done
+          for x in runner_decomps/bins-*/downloaded/*; do mv $x bins ; done
           tar czf all_bins.tar.gz bins
           echo total file count bins: $(tar -ztvf all_bins.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
 
@@ -352,9 +352,9 @@ jobs:
         run: | 
           mkdir sgs
           ls runner_decomps/sg-* | head -n 100
-          for x in runner_decomps/sg-*/*; do cp $x sgs ; done
-          ls
-          ls sgs
+          for x in runner_decomps/sg-*/*; do mv $x sgs ; done
+
+          echo SGS dir count: $(ls sgs | wc -l)
           tar czf all_sg.tar.gz sgs
           echo total file count sgs: $(tar -ztvf all_sg.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
       - name: combine artifacts gzfs
@@ -362,8 +362,8 @@ jobs:
           mkdir gzfs
           df -h
           ls runner_decomps/gzfs-*| head -n 100
-          for x in runner_decomps/gzfs-*/*; do cp $x gzfs ; done
-          ls gzfs
+          for x in runner_decomps/gzfs-*/*; do mv $x gzfs; done
+          echo gzfs dir count: $(ls gzfs | wc -l)
           tar czf all_gzfs.tar.gz gzfs
           echo total file count gzfs: $(tar -ztvf all_gzfs.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
 
