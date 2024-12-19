@@ -183,6 +183,7 @@ jobs:
             python run_decomp.py --id ${{ matrix.counts }} --proc-limit 3
 
       - name: Checkout tools repo
+        if: always()
         uses: actions/checkout@v4
         with:
           repository: clearbluejar/semgrep-rules
@@ -191,6 +192,7 @@ jobs:
     
 
       - name: scan
+        if: always()
         run:  |
           pip install semgrep
           for x in ghidrecomps/bins/*/decomps/; do
@@ -224,13 +226,13 @@ jobs:
       #     zip -qq -r decompilations${{ matrix.counts }}.zip decompilations/
       #     unzip -l decompilations${{ matrix.counts }}.zip
 
-      # - name: Upload gzfs
-      #   uses: actions/upload-artifact@v4
-      #   if: always()
-      #   with:
-      #     name: gzfs-${{ matrix.counts }}
-      #     path: ghidrecomps/gzfs/*.gzf
-      #     retention-days: 5
+      - name: Upload gzfs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gzfs-${{ matrix.counts }}
+          path: ghidrecomps/gzfs/*.gzf
+          retention-days: 1
 
       - name: Tar GZ decomps
         run:  |
@@ -276,11 +278,11 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R runner_decomps
 
-      - name: upload all artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: all_things
-          path: runner_decomps
+      # - name: upload all artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: all_things
+      #     path: runner_decomps
       # - name: Download projects          
       #   uses: actions/download-artifact@master      
       #   with:
@@ -315,14 +317,15 @@ jobs:
           echo hiiiiii
           ls -R decompilations/ghidrecomps/bsim-xmls/ | head -n 100
           ls -R decompilations/ghidrecomps/bsim-xmls/ | wc
+          echo total file count decomps: $(tar -ztvf decompilations.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
           
           tar czf bsim.tar.gz decompilations/ghidrecomps/bsim-xmls/*
+          echo total file count bsim: $(tar -ztvf bsim.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
+
           mkdir bins
           for x in runner_decomps/bins-*/downloaded/*; do cp $x bins ; done
           tar czf all_bins.tar.gz bins
-          echo total file count decomps: $(tar -ztvf decompilations.tar.gz | wc -l) 
-          echo total file count bsim: $(tar -ztvf bsim.tar.gz | wc -l)   
-          echo total file count bsim: $(tar -ztvf bsim.tar.gz | wc -l) 
+          echo total file count bins: $(tar -ztvf all_bins.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
 
           mkdir sgs
           ls runner_decomps/sg-* | head -n 100
@@ -330,6 +333,16 @@ jobs:
           ls
           ls sgs
           tar czf all_sg.tar.gz sgs
+          echo total file count sgs: $(tar -ztvf all_sg.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
+
+          mkdir gzfs
+          ls runner_decomps/gzfs-*| head -n 100
+          for x in runner_decomps/gzfs-*/*.gzf; do mv $x gzfs ; done
+          ls gzfs
+          tar czf all_gzfs.tar.gz gzfs
+          echo total file count gzfs: $(tar -ztvf all_gzfs.tar.gz | wc -l) >> $GITHUB_STEP_SUMMARY
+
+
       # - name: Upload decompilations          
       #   uses: actions/upload-artifact@v3
       #   if: always()
@@ -347,29 +360,36 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: all_decompilations
+          name: all_decompilations-${{inputs.run_name}}
           path: decompilations.tar.gz
-          retention-days: 15
+          retention-days: 5
       - name: Upload extra          
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: all_bsim
+          name: all_bsim-${{inputs.run_name}}
           path: bsim.tar.gz
-          retention-days: 15         
+          retention-days: 5         
       - name: Upload all bins          
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: all_bins
+          name: all_bins-${{inputs.run_name}}
           path: bins.tar.gz
-          retention-days: 15  
+          retention-days: 5  
       - name: Upload sg       
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: sg-results-${{inputs.run_name}}
           path: all_sg.tar.gz
-          retention-days: 15 
+          retention-days: 5
+      - name: Upload gzfs       
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: gzfs-${{inputs.run_name}}
+          path: all_gzfs.tar.gz
+          retention-days: 5
     # clean up decompilations
 

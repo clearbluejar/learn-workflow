@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFo
 parser.add_argument("--id", type=int, help="fileid to download from", required=True)
 parser.add_argument("--fl_path", help="File List Path", default='bins/meta')
 parser.add_argument("--proc-limit", help="concurrent process limit", type=int, default=2)
-parser.add_argument("--timeout", help="Timeout for subprocess calls in seconds", type=int, default=1200)
+parser.add_argument("--timeout", help="Timeout for subprocess calls in seconds", type=int, default=1800)
 
 
 args = parser.parse_args()

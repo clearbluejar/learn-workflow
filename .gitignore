@@ -130,3 +130,8 @@ dmypy.json
 
 gen_files*/
 bins*/
+ghidrecomps*/
+runner_decomps*/
+*.gz
+.DS_Store
+*.zip
