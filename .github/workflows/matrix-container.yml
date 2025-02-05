@@ -383,35 +383,35 @@ jobs:
       #       .ghidra_projects
       #     key: ghidra-projects-cache-${{ hashFiles('gen_files/meta/args.json') }}
       - name: Upload decompilations          
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: all_decompilations-${{inputs.run_name}}
           path: decompilations.tar.gz
           retention-days: 5
       - name: Upload extra          
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: all_bsim-${{inputs.run_name}}
           path: bsim.tar.gz
           retention-days: 5         
       - name: Upload all bins          
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: all_bins-${{inputs.run_name}}
           path: bins.tar.gz
           retention-days: 5  
       - name: Upload sg       
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sg-results-${{inputs.run_name}}
           path: all_sg.tar.gz
           retention-days: 5
       - name: Upload gzfs       
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: gzfs-${{inputs.run_name}}
