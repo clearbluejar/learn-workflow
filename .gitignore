@@ -132,6 +132,11 @@ gen_files*/
 bins*/
 ghidrecomps*/
 runner_decomps*/
+decomp_logs*/
+collections_build*/
+out*/
+.vscode/
+hs_err_pid*
 *.gz
 .DS_Store
 *.zip
