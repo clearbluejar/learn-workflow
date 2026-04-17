@@ -106,13 +106,22 @@ def write_archive(entries: list[PackageEntry], archive_path: Path) -> None:
 
 def compress_with_zstd(input_path: Path, output_path: Path) -> None:
     zstd = shutil.which("zstd")
-    if not zstd:
-        raise RuntimeError("zstd not found in PATH")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [zstd, "-q", "-19", "--force", str(input_path), "-o", str(output_path)],
-        check=True,
-    )
+    if zstd:
+        subprocess.run(
+            [zstd, "-q", "-19", "--force", str(input_path), "-o", str(output_path)],
+            check=True,
+        )
+        return
+
+    try:
+        import zstandard
+    except ImportError as exc:
+        raise RuntimeError("zstd not found in PATH and zstandard is not installed") from exc
+
+    compressor = zstandard.ZstdCompressor(level=19)
+    with input_path.open("rb") as src, output_path.open("wb") as dst:
+        compressor.copy_stream(src, dst)
 
 
 def build_part_archives(
