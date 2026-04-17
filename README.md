@@ -1,2 +1,61 @@
 # learn-workflow
-Repo to learn github workflow
+
+Collection harness for building Windows binary corpora, packaging BSim exports, and preparing data for hosted BSim databases.
+
+## Current v1 shape
+
+- `gen_files.py`: builds manifest-driven worklists from `cvedata`
+- `get_files.py`: downloads binaries and records metadata in `bins/meta`
+- `run_decomp.py`: runs `ghidrecomp` with `--bsim --gzf`
+- `package_collection.py`: packages binaries and BSim XML into multipart release assets with a manifest and `toolchain.lock`
+- `build_bsim_db.sh`: imports packaged BSim XML into a PostgreSQL-backed BSim database
+
+The current v1 target is:
+
+- Windows only
+- pinned base images like `windows-2022` and `windows-2025`
+- `System32` and `SysWOW64` first
+- binaries + BSim XML + manifest + `toolchain.lock`
+- per-image database dumps later, not for every narrow run
+
+## Local packaging smoke test
+
+```bash
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+```
+
+## Local packaging command
+
+```bash
+python3 package_collection.py \
+  --collection-id windows-2022-smoke \
+  --collection-name "windows-2022 smoke" \
+  --mode baseline-image \
+  --binaries-dir bins/downloaded \
+  --bsim-dir ghidrecomps/bsim-xmls \
+  --meta-dir bins/meta \
+  --out-dir collections_build/out \
+  --runner-label windows-2022 \
+  --runner-image-version 20260414.1.0 \
+  --ghidra-version 11.2.1 \
+  --ghidra-bsim-compat-version 6.0 \
+  --bsim-template medium_64 \
+  --collected-at 2026-04-17T13:15:00Z
+```
+
+This writes:
+
+- `manifest.jsonl.zst`
+- `toolchain.lock.json`
+- `collection.json`
+- `binaries.partNN.tar.zst`
+- `bsim.partNN.tar.zst`
+
+## BSim import
+
+```bash
+./build_bsim_db.sh /path/to/ghidra \
+  postgresql://user:pass@host:5432/windows_2022 \
+  /path/to/bsim-xmls \
+  ghidra://corpus/windows-2022
+```

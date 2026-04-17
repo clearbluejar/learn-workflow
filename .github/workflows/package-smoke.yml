@@ -1,0 +1,26 @@
+name: package-smoke
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+    paths:
+      - "package_collection.py"
+      - ".github/workflows/package-smoke.yml"
+      - "tests/**"
+      - ".gitignore"
+      - "README.md"
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install zstd
+        run: sudo apt-get update && sudo apt-get install -y zstd
+      - name: Run packaging smoke test
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v

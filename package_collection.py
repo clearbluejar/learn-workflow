@@ -3,12 +3,13 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import shutil
 import subprocess
 import tarfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 
 DEFAULT_PART_SIZE = 1900 * 1024 * 1024
@@ -35,6 +36,16 @@ def sha256_json(data: dict) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def normalize_json_value(value: Any) -> Any:
+    if isinstance(value, float) and math.isnan(value):
+        return None
+    if isinstance(value, dict):
+        return {key: normalize_json_value(val) for key, val in value.items()}
+    if isinstance(value, list):
+        return [normalize_json_value(item) for item in value]
+    return value
+
+
 def get_tar_mode(path: Path) -> str:
     if path.suffixes[-2:] == [".tar", ".gz"]:
         return "w:gz"
@@ -50,6 +61,20 @@ class PackageEntry:
     source: Path
     relpath: str
     size: int
+
+
+@dataclass
+class BinaryMetadata:
+    source_url: str | None = None
+    original_path: str | None = None
+    os: str | None = None
+    arch: str | None = None
+    version: str | None = None
+    file_build: str | None = None
+    pdb_status: str | None = None
+    pdb_guid: str | None = None
+    pdb_age: int | None = None
+    source_dataset: str | None = None
 
 
 def chunk_entries(entries: list[PackageEntry], part_size: int) -> list[list[PackageEntry]]:
@@ -124,10 +149,63 @@ def iter_bsim_exports(bsim_dir: Path) -> Iterable[Path]:
             yield path
 
 
+def parse_binary_name(binary_path: Path) -> tuple[str | None, str | None]:
+    parts = binary_path.name.split(".")
+    if len(parts) < 4:
+        return None, None
+    for idx, part in enumerate(parts):
+        if part in {"x86", "x64", "arm64"}:
+            version = ".".join(parts[idx + 1 :]) or None
+            return part, version
+    return None, None
+
+
+def get_file_build(version: str | None) -> str | None:
+    if not version:
+        return None
+    parts = version.split(".")
+    if len(parts) < 3:
+        return None
+    return parts[2]
+
+
+def load_metadata_index(meta_dir: Path | None) -> dict[str, BinaryMetadata]:
+    if not meta_dir or not meta_dir.exists():
+        return {}
+
+    metadata_by_filename: dict[str, BinaryMetadata] = {}
+    for dl_meta_path in sorted(meta_dir.glob("dl_files*.json")):
+        records = json.loads(dl_meta_path.read_text())
+        for record in records:
+            if len(record) != 4:
+                continue
+            _status, source_meta, resolved_version, downloaded_path = record
+            source_meta = normalize_json_value(source_meta)
+            downloaded_path = Path(downloaded_path)
+            parsed_arch, parsed_version = parse_binary_name(downloaded_path)
+
+            pdb_path = source_meta.get("pdb_path")
+            metadata_by_filename[downloaded_path.name] = BinaryMetadata(
+                source_url=source_meta.get("url"),
+                original_path=source_meta.get("Path"),
+                os="windows" if source_meta.get("Path") else None,
+                arch=parsed_arch,
+                version=resolved_version or parsed_version or source_meta.get("VersionInfo.FileVersion"),
+                file_build=get_file_build(resolved_version or parsed_version),
+                pdb_status="present" if pdb_path else None,
+                pdb_guid=source_meta.get("pdb_guid"),
+                pdb_age=source_meta.get("pdb_age"),
+                source_dataset=source_meta.get("source"),
+            )
+
+    return metadata_by_filename
+
+
 def build_binary_rows(
     collection_id: str,
     binaries_dir: Path,
     bsim_dir: Path,
+    metadata_index: dict[str, BinaryMetadata],
 ) -> tuple[list[dict], list[PackageEntry], list[PackageEntry]]:
     binary_entries: list[PackageEntry] = []
     bsim_entries: list[PackageEntry] = []
@@ -148,26 +226,31 @@ def build_binary_rows(
             PackageEntry(binary_path, binary_relpath, binary_path.stat().st_size)
         )
 
+        metadata = metadata_index.get(binary_path.name, BinaryMetadata())
+        parsed_arch, parsed_version = parse_binary_name(binary_path)
+        version = metadata.version or parsed_version
+
         row = {
             "collection_id": collection_id,
             "sha256": sha256,
             "md5": md5,
             "filename": binary_path.name,
-            "original_path": None,
-            "os": None,
-            "arch": None,
-            "version": None,
-            "file_build": None,
-            "source_url": None,
+            "original_path": metadata.original_path,
+            "os": metadata.os,
+            "arch": metadata.arch or parsed_arch,
+            "version": version,
+            "file_build": metadata.file_build or get_file_build(version),
+            "source_url": metadata.source_url,
+            "source_dataset": metadata.source_dataset,
             "binary_relpath": binary_relpath,
             "binary_archive": None,
             "binary_archive_member": binary_relpath,
             "bsim_relpath": None,
             "bsim_archive": None,
             "bsim_archive_member": None,
-            "pdb_status": None,
-            "pdb_guid": None,
-            "pdb_age": None,
+            "pdb_status": metadata.pdb_status,
+            "pdb_guid": metadata.pdb_guid,
+            "pdb_age": metadata.pdb_age,
         }
 
         export_path = bsim_by_md5.get(md5)
@@ -217,6 +300,7 @@ def main() -> None:
     parser.add_argument("--binaries-dir", default="bins/downloaded")
     parser.add_argument("--bsim-dir", default="ghidrecomps/bsim-xmls")
     parser.add_argument("--out-dir", default="collections_build")
+    parser.add_argument("--meta-dir", default="bins/meta")
     parser.add_argument("--runner-label")
     parser.add_argument("--runner-image-version")
     parser.add_argument("--ghidra-version", required=True)
@@ -232,6 +316,7 @@ def main() -> None:
 
     binaries_dir = Path(args.binaries_dir)
     bsim_dir = Path(args.bsim_dir)
+    meta_dir = Path(args.meta_dir) if args.meta_dir else None
     out_dir = Path(args.out_dir) / args.collection_id
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -239,8 +324,9 @@ def main() -> None:
     if args.analysis_options_json:
         analysis_options = json.loads(Path(args.analysis_options_json).read_text())
 
+    metadata_index = load_metadata_index(meta_dir)
     rows, binary_entries, bsim_entries = build_binary_rows(
-        args.collection_id, binaries_dir, bsim_dir
+        args.collection_id, binaries_dir, bsim_dir, metadata_index
     )
 
     binary_parts = build_part_archives(binary_entries, "binaries", out_dir, args.part_size_bytes)
@@ -261,6 +347,7 @@ def main() -> None:
         "analysis_options": analysis_options,
         "runner_label": args.runner_label,
         "runner_image_version": args.runner_image_version,
+        "meta_dir": str(meta_dir) if meta_dir else None,
     }
     toolchain_lock_path = out_dir / "toolchain.lock.json"
     toolchain_lock_path.write_text(json.dumps(toolchain_lock, indent=2, sort_keys=True))

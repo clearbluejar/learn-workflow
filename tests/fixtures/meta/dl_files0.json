@@ -1,0 +1,22 @@
+[
+  [
+    200,
+    {
+      "url": "https://example.invalid/alpha.dll",
+      "Path": "C:\\Windows\\System32\\alpha.dll",
+      "source": "windows-2022-test"
+    },
+    "10.0.20348.1",
+    "bins/downloaded/alpha.dll.x64.10.0.20348.1"
+  ],
+  [
+    200,
+    {
+      "url": "https://example.invalid/beta.dll",
+      "Path": "C:\\Windows\\SysWOW64\\beta.dll",
+      "source": "windows-2022-test"
+    },
+    "10.0.20348.2",
+    "bins/downloaded/beta.dll.x86.10.0.20348.2"
+  ]
+]
