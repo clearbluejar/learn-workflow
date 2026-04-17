@@ -44,15 +44,25 @@ jobs:
       - name: Collect bounded baseline subset
         shell: pwsh
         run: |
-          $recurse = if ("${{ inputs.recurse }}" -eq "true") { "--recurse" } else { "" }
-          python collect_baseline.py `
-            --root C:\Windows\System32 `
-            --root C:\Windows\SysWOW64 `
-            --out-dir collections_build\baseline_collect `
-            --limit ${{ inputs.limit }} `
-            --runner-label windows-2022 `
-            --source-dataset windows-2022-baseline-dryrun `
-            $recurse
+          if ("${{ inputs.recurse }}" -eq "true") {
+            python collect_baseline.py `
+              --root C:\Windows\System32 `
+              --root C:\Windows\SysWOW64 `
+              --out-dir collections_build\baseline_collect `
+              --limit ${{ inputs.limit }} `
+              --runner-label windows-2022 `
+              --source-dataset windows-2022-baseline-dryrun `
+              --recurse
+          }
+          else {
+            python collect_baseline.py `
+              --root C:\Windows\System32 `
+              --root C:\Windows\SysWOW64 `
+              --out-dir collections_build\baseline_collect `
+              --limit ${{ inputs.limit }} `
+              --runner-label windows-2022 `
+              --source-dataset windows-2022-baseline-dryrun
+          }
 
       - name: Prepare empty BSim directory
         shell: pwsh
