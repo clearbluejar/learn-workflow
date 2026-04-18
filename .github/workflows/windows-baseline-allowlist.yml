@@ -39,6 +39,11 @@ on:
         description: "Total number of allowlist shards"
         required: true
         default: "1"
+      upload_raw:
+        description: "Upload raw ghidrecomp output for debugging"
+        required: true
+        type: boolean
+        default: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -162,7 +167,7 @@ jobs:
           retention-days: 7
 
       - name: Upload ghidrecomp raw output
-        if: always()
+        if: ${{ always() && inputs.upload_raw }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.vars.outputs.collection_id }}-raw

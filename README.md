@@ -50,6 +50,8 @@ python3 collect_baseline.py \
   --source-dataset windows-2022-baseline-allowlist
 
 Use `allowlists/windows-2022-core.txt` with sharding for slower, broader baseline corpus runs.
+
+For baseline runs, raw `ghidrecomp` output is now optional and disabled by default. Keep it off unless you need debugging detail beyond the packaged BSim XML and manifests.
 ```
 
 ## Local packaging smoke test
