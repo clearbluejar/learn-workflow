@@ -2,6 +2,12 @@
 
 Collection harness for building Windows binary corpora, packaging BSim exports, and preparing data for hosted BSim databases.
 
+## Docs
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Design Notes](docs/DESIGN.md)
+- [Operations](docs/OPERATIONS.md)
+
 ## Current v1 shape
 
 - `gen_files.py`: builds manifest-driven worklists from `cvedata`
@@ -18,6 +24,18 @@ The current v1 target is:
 - `System32` and `SysWOW64` first
 - binaries + BSim XML + manifest + `toolchain.lock`
 - per-image database dumps later, not for every narrow run
+
+## Current Proven Path
+
+This repo has now proven the following path:
+
+1. collect a bounded Windows baseline subset from a GitHub-hosted runner
+2. install pinned Ghidra on that runner
+3. install latest `ghidrecomp` from PyPI
+4. generate real BSim XML from a runner-collected system DLL
+5. package binaries + BSim XML + manifest + toolchain lock
+6. import the resulting XML into a local BSim database
+7. query executables and functions from that database
 
 ## Local packaging smoke test
 
