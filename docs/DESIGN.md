@@ -104,6 +104,8 @@ This is a practical compromise:
 
 For larger baseline runs, selection can later be replaced with a committed allowlist or a manifest generated offline.
 
+The first committed baseline input now lives under `allowlists/`, starting with `allowlists/windows-2022-core.txt`. These files are intentionally neutral harness inputs rather than embedding research-specific logic in workflow definitions.
+
 ## Database Strategy
 
 ### Local validation

@@ -1,0 +1,21 @@
+# Bounded baseline seed set for windows-2022 GitHub-hosted runners.
+# Entries can be bare filenames, root-relative paths, or absolute paths.
+
+dnsapi.dll
+comdlg32.dll
+dbgeng.dll
+imagehlp.dll
+mstask.dll
+apphelp.dll
+url.dll
+taskhostw.exe
+eventvwr.exe
+wer.dll
+rpcrt4.dll
+winhttp.dll
+wininet.dll
+crypt32.dll
+sechost.dll
+advapi32.dll
+kernelbase.dll
+ntdll.dll

@@ -155,13 +155,14 @@ That future service is the likely base for the intended BSim MCP server.
 - `package-smoke.yml`
 - `windows-baseline-dry-run.yml`
 - `windows-baseline-bsim-smoke.yml`
+- `windows-baseline-allowlist.yml`
 
 ### Legacy / existing pipeline
 
 - `matrix-container.yml`
 - `run-image.yml`
 
-The newer workflows validate the v1 packaging and BSim corpus path. The older workflows represent the original distributed download/decomp/scan flow.
+The newer workflows validate the v1 packaging and BSim corpus path. The allowlist workflow is the first bounded baseline path intended for repeatable corpus collection from pinned Windows runner images. The older workflows represent the original distributed download/decomp/scan flow.
 
 ## Current Proven Path
 

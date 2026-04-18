@@ -37,6 +37,19 @@ This repo has now proven the following path:
 6. import the resulting XML into a local BSim database
 7. query executables and functions from that database
 
+The next supported path is a bounded baseline run driven by a committed allowlist:
+
+```bash
+python3 collect_baseline.py \
+  --root /path/to/System32 \
+  --root /path/to/SysWOW64 \
+  --allowlist allowlists/windows-2022-core.txt \
+  --out-dir collections_build/baseline_collect \
+  --limit 18 \
+  --runner-label windows-2022 \
+  --source-dataset windows-2022-baseline-allowlist
+```
+
 ## Local packaging smoke test
 
 ```bash

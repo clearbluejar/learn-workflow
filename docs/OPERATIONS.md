@@ -77,6 +77,11 @@ python3 bsim_db_tool.py \
 - workflow: `windows-baseline-bsim-smoke.yml`
 - purpose: collect a tiny Windows subset, install Ghidra, run `ghidrecomp --bsim`, and package the results
 
+### Windows allowlist baseline
+
+- workflow: `windows-baseline-allowlist.yml`
+- purpose: collect a bounded baseline corpus from a committed allowlist, run `ghidrecomp --bsim`, and package the results
+
 ## Observed CI Results
 
 ### Dry run
@@ -131,8 +136,8 @@ It does not provide the full future MCP query surface by itself. Similarity quer
 
 ## Next Operational Steps
 
-1. Add a bounded baseline allowlist for `windows-2022`.
-2. Add a parallel or chunked baseline workflow for `windows-2022`.
+1. Run the committed allowlist baseline on `windows-2022`.
+2. Add a parallel or chunked baseline workflow for larger image coverage.
 3. Build a PostgreSQL-backed corpus from produced XML.
 4. Add a thin resolver layer around:
    - collection manifest

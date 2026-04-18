@@ -5,6 +5,7 @@ import json
 import math
 import re
 import shutil
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -83,6 +84,70 @@ def iter_candidates(roots: list[Path], recurse: bool) -> list[Path]:
     return sorted(candidates)
 
 
+def load_allowlist(allowlist_path: Path) -> list[str]:
+    lines = []
+    for raw_line in allowlist_path.read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        lines.append(line)
+    return lines
+
+
+def resolve_allowlist_paths(entries: list[str], roots: list[Path]) -> list[Path]:
+    resolved: list[Path] = []
+    lower_roots = [(str(root).lower(), root) for root in roots]
+
+    for entry in entries:
+        normalized = entry.replace("/", "\\")
+        entry_path = Path(normalized)
+        if entry_path.exists():
+            resolved.append(entry_path)
+            continue
+
+        matched = False
+        entry_lower = normalized.lower()
+        for root_lower, root in lower_roots:
+            if entry_lower.startswith(root_lower):
+                suffix = normalized[len(str(root)) :].lstrip("\\/")
+                candidate = root / Path(suffix)
+                if candidate.exists():
+                    resolved.append(candidate)
+                    matched = True
+                    break
+        if matched:
+            continue
+
+        for _, root in lower_roots:
+            candidate = root / Path(normalized)
+            if candidate.exists():
+                resolved.append(candidate)
+                matched = True
+                break
+        if matched:
+            continue
+
+        basename = Path(normalized).name
+        for _, root in lower_roots:
+            candidate = root / basename
+            if candidate.exists():
+                resolved.append(candidate)
+                matched = True
+                break
+        if not matched:
+            print(json.dumps({"warn_missing_allowlist_entry": entry}), file=sys.stderr)
+
+    deduped = []
+    seen = set()
+    for path in resolved:
+        key = str(path).lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(path)
+    return deduped
+
+
 def is_pe_candidate(path: Path) -> bool:
     return path.suffix.lower() in {".dll", ".exe", ".sys", ".cpl", ".ocx"}
 
@@ -116,6 +181,11 @@ def main() -> None:
     parser.add_argument("--runner-label", required=True)
     parser.add_argument("--source-dataset", required=True)
     parser.add_argument(
+        "--allowlist",
+        type=Path,
+        help="Optional path to a newline-delimited allowlist of preferred binaries",
+    )
+    parser.add_argument(
         "--min-size-bytes",
         type=int,
         default=65536,
@@ -130,8 +200,16 @@ def main() -> None:
     binaries_dir.mkdir(parents=True, exist_ok=True)
     meta_dir.mkdir(parents=True, exist_ok=True)
 
+    if args.allowlist:
+        allowlist_entries = load_allowlist(args.allowlist)
+        candidate_pool = resolve_allowlist_paths(allowlist_entries, roots)
+    else:
+        candidate_pool = iter_candidates(roots, args.recurse)
+
     eligible: list[Path] = []
-    for candidate in iter_candidates(roots, args.recurse):
+    for candidate in candidate_pool:
+        if not candidate.exists() or not candidate.is_file():
+            continue
         if not is_pe_candidate(candidate):
             continue
         if candidate.stat().st_size < args.min_size_bytes:
