@@ -50,6 +50,18 @@ def get_pe_version(path: Path) -> str | None:
     return None
 
 
+def get_import_count(path: Path) -> int:
+    try:
+        pe = get_pe(path)
+        pe.parse_data_directories(
+            [pefile.DIRECTORY_ENTRY["IMAGE_DIRECTORY_ENTRY_IMPORT"]]
+        )
+        imports = getattr(pe, "DIRECTORY_ENTRY_IMPORT", [])
+        return sum(len(getattr(entry, "imports", [])) for entry in imports)
+    except Exception:
+        return 0
+
+
 def normalize_value(value: Any) -> Any:
     if isinstance(value, float) and math.isnan(value):
         return None
@@ -74,6 +86,20 @@ def is_pe_candidate(path: Path) -> bool:
     return path.suffix.lower() in {".dll", ".exe", ".sys", ".cpl", ".ocx"}
 
 
+def candidate_priority(path: Path) -> tuple[int, int, int, str]:
+    suffix = path.suffix.lower()
+    suffix_rank = {
+        ".exe": 0,
+        ".dll": 1,
+        ".cpl": 2,
+        ".ocx": 3,
+        ".sys": 4,
+    }.get(suffix, 9)
+    size = path.stat().st_size
+    import_count = get_import_count(path)
+    return (suffix_rank, -import_count, -size, path.name.lower())
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -84,6 +110,12 @@ def main() -> None:
     parser.add_argument("--recurse", action="store_true")
     parser.add_argument("--runner-label", required=True)
     parser.add_argument("--source-dataset", required=True)
+    parser.add_argument(
+        "--min-size-bytes",
+        type=int,
+        default=65536,
+        help="Skip tiny binaries that are less likely to produce useful BSim output",
+    )
     args = parser.parse_args()
 
     roots = [Path(root) for root in args.root]
@@ -93,14 +125,19 @@ def main() -> None:
     binaries_dir.mkdir(parents=True, exist_ok=True)
     meta_dir.mkdir(parents=True, exist_ok=True)
 
-    records = []
-    count = 0
+    eligible: list[Path] = []
     for candidate in iter_candidates(roots, args.recurse):
-        if count >= args.limit:
-            break
         if not is_pe_candidate(candidate):
             continue
+        if candidate.stat().st_size < args.min_size_bytes:
+            continue
+        eligible.append(candidate)
 
+    records = []
+    count = 0
+    for candidate in sorted(eligible, key=candidate_priority):
+        if count >= args.limit:
+            break
         arch = get_pe_arch(candidate)
         version = get_pe_version(candidate)
         if not arch or not version:
@@ -121,7 +158,16 @@ def main() -> None:
         count += 1
 
     (meta_dir / "dl_files0.json").write_text(json.dumps(records, indent=2))
-    print(json.dumps({"collected": count, "out_dir": str(out_dir)}, indent=2))
+    print(
+        json.dumps(
+            {
+                "collected": count,
+                "eligible_candidates": len(eligible),
+                "out_dir": str(out_dir),
+            },
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

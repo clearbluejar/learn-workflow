@@ -24,10 +24,6 @@ on:
         description: "Pinned BSim template recorded in toolchain.lock"
         required: true
         default: "medium_64"
-      ghidrecomp_version:
-        description: "Pinned ghidrecomp version"
-        required: true
-        default: "0.5.9"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -51,7 +47,8 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          pip install pefile zstandard ghidrecomp==${{ inputs.ghidrecomp_version }}
+          pip install pefile zstandard ghidrecomp
+          python -m pip show ghidrecomp
 
       - name: Install pinned Ghidra
         shell: pwsh
@@ -88,6 +85,7 @@ jobs:
               --root C:\Windows\SysWOW64 `
               --out-dir collections_build\baseline_collect `
               --limit ${{ inputs.limit }} `
+              --min-size-bytes 65536 `
               --runner-label windows-2022 `
               --source-dataset windows-2022-baseline-bsim-smoke `
               --recurse
@@ -98,6 +96,7 @@ jobs:
               --root C:\Windows\SysWOW64 `
               --out-dir collections_build\baseline_collect `
               --limit ${{ inputs.limit }} `
+              --min-size-bytes 65536 `
               --runner-label windows-2022 `
               --source-dataset windows-2022-baseline-bsim-smoke
           }
