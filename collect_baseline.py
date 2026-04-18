@@ -49,17 +49,18 @@ def get_pe_version(path: Path) -> str | None:
         return None
     return None
 
-
-def get_import_count(path: Path) -> int:
-    try:
-        pe = get_pe(path)
-        pe.parse_data_directories(
-            [pefile.DIRECTORY_ENTRY["IMAGE_DIRECTORY_ENTRY_IMPORT"]]
-        )
-        imports = getattr(pe, "DIRECTORY_ENTRY_IMPORT", [])
-        return sum(len(getattr(entry, "imports", [])) for entry in imports)
-    except Exception:
-        return 0
+PREFERRED_NAMES = [
+    "dnsapi.dll",
+    "comdlg32.dll",
+    "searchindexer.exe",
+    "dbgeng.dll",
+    "imagehlp.dll",
+    "mstask.dll",
+    "taskhostw.exe",
+    "eventvwr.exe",
+    "apphelp.dll",
+    "url.dll",
+]
 
 
 def normalize_value(value: Any) -> Any:
@@ -87,6 +88,11 @@ def is_pe_candidate(path: Path) -> bool:
 
 
 def candidate_priority(path: Path) -> tuple[int, int, int, str]:
+    name = path.name.lower()
+    preferred_rank = next(
+        (idx for idx, preferred in enumerate(PREFERRED_NAMES) if name == preferred),
+        len(PREFERRED_NAMES),
+    )
     suffix = path.suffix.lower()
     suffix_rank = {
         ".exe": 0,
@@ -96,8 +102,7 @@ def candidate_priority(path: Path) -> tuple[int, int, int, str]:
         ".sys": 4,
     }.get(suffix, 9)
     size = path.stat().st_size
-    import_count = get_import_count(path)
-    return (suffix_rank, -import_count, -size, path.name.lower())
+    return (preferred_rank, suffix_rank, -size, name)
 
 
 def main() -> None:
