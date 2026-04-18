@@ -52,6 +52,8 @@ python3 collect_baseline.py \
 Use `allowlists/windows-2022-core.txt` with sharding for slower, broader baseline corpus runs.
 
 For baseline runs, raw `ghidrecomp` output is now optional and disabled by default. Keep it off unless you need debugging detail beyond the packaged BSim XML and manifests.
+
+The workflow now passes the selected `bsim_template` through to `ghidrecomp` so the generated XML matches the value recorded in `toolchain.lock.json`.
 ```
 
 ## Local packaging smoke test

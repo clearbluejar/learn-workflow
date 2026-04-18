@@ -84,6 +84,7 @@ python3 bsim_db_tool.py \
 - default input: `allowlists/windows-2022-seed.txt`
 - broader input: `allowlists/windows-2022-core.txt` with `shard_count > 1`
 - raw `ghidrecomp` upload: optional, intended for debugging rather than routine baseline collection
+- `bsim_template` is passed through to `ghidrecomp` and should match the value recorded in collection metadata
 
 ## Observed CI Results
 

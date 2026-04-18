@@ -121,7 +121,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path ghidrecomps | Out-Null
           Get-ChildItem collections_build\baseline_collect\binaries -File | ForEach-Object {
-            ghidrecomp --va --bsim --skip-symbols --thread-count 2 $_.FullName
+            ghidrecomp --va --bsim --bsim-template "${{ inputs.bsim_template }}" --skip-symbols --thread-count 2 $_.FullName
           }
 
       - name: Build collection id
