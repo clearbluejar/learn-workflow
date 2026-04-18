@@ -44,6 +44,8 @@ python3 collect_baseline.py \
   --root /path/to/System32 \
   --root /path/to/SysWOW64 \
   --allowlist allowlists/windows-2022-core.txt \
+  --shard-index 0 \
+  --shard-count 4 \
   --out-dir collections_build/baseline_collect \
   --limit 18 \
   --runner-label windows-2022 \

@@ -31,6 +31,14 @@ on:
         description: "Cap collected binaries after allowlist resolution"
         required: true
         default: "18"
+      shard_index:
+        description: "Shard index for allowlist slicing"
+        required: true
+        default: "0"
+      shard_count:
+        description: "Total number of allowlist shards"
+        required: true
+        default: "1"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -92,6 +100,8 @@ jobs:
             --out-dir collections_build\baseline_collect `
             --limit ${{ inputs.limit }} `
             --allowlist "${{ inputs.allowlist_path }}" `
+            --shard-index ${{ inputs.shard_index }} `
+            --shard-count ${{ inputs.shard_count }} `
             --min-size-bytes 65536 `
             --runner-label ${{ inputs.runner_label }} `
             --source-dataset "${{ inputs.runner_label }}-baseline-allowlist"
@@ -109,7 +119,7 @@ jobs:
         shell: pwsh
         run: |
           $date = Get-Date -Format "yyyyMMdd-HHmmss"
-          $collectionId = "${{ inputs.runner_label }}-baseline-allowlist-$date"
+          $collectionId = "${{ inputs.runner_label }}-baseline-allowlist-s${{ inputs.shard_index }}of${{ inputs.shard_count }}-$date"
           "collection_id=$collectionId" >> $env:GITHUB_OUTPUT
 
       - name: Package allowlist baseline collection
@@ -132,7 +142,7 @@ jobs:
             --bsim-template ${{ inputs.bsim_template }} `
             --collected-at $collectedAt `
             --scope C:\Windows\System32 C:\Windows\SysWOW64 `
-            --selection-reason "Committed allowlist baseline run from ${{ inputs.allowlist_path }}"
+            --selection-reason "Committed allowlist baseline run from ${{ inputs.allowlist_path }} shard ${{ inputs.shard_index }}/${{ inputs.shard_count }}"
 
       - name: Summarize packaged output
         shell: pwsh

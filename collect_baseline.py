@@ -148,6 +148,14 @@ def resolve_allowlist_paths(entries: list[str], roots: list[Path]) -> list[Path]
     return deduped
 
 
+def shard_candidates(candidates: list[Path], shard_index: int, shard_count: int) -> list[Path]:
+    if shard_count <= 1:
+        return candidates
+    if shard_index < 0 or shard_index >= shard_count:
+        raise ValueError(f"invalid shard index {shard_index} for shard count {shard_count}")
+    return [candidate for idx, candidate in enumerate(candidates) if idx % shard_count == shard_index]
+
+
 def is_pe_candidate(path: Path) -> bool:
     return path.suffix.lower() in {".dll", ".exe", ".sys", ".cpl", ".ocx"}
 
@@ -191,6 +199,8 @@ def main() -> None:
         default=65536,
         help="Skip tiny binaries that are less likely to produce useful BSim output",
     )
+    parser.add_argument("--shard-index", type=int, default=0)
+    parser.add_argument("--shard-count", type=int, default=1)
     args = parser.parse_args()
 
     roots = [Path(root) for root in args.root]
@@ -205,6 +215,7 @@ def main() -> None:
         candidate_pool = resolve_allowlist_paths(allowlist_entries, roots)
     else:
         candidate_pool = iter_candidates(roots, args.recurse)
+    candidate_pool = shard_candidates(candidate_pool, args.shard_index, args.shard_count)
 
     eligible: list[Path] = []
     for candidate in candidate_pool:
@@ -246,6 +257,8 @@ def main() -> None:
             {
                 "collected": count,
                 "eligible_candidates": len(eligible),
+                "shard_index": args.shard_index,
+                "shard_count": args.shard_count,
                 "out_dir": str(out_dir),
             },
             indent=2,

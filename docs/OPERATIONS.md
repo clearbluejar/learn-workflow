@@ -80,7 +80,7 @@ python3 bsim_db_tool.py \
 ### Windows allowlist baseline
 
 - workflow: `windows-baseline-allowlist.yml`
-- purpose: collect a bounded baseline corpus from a committed allowlist, run `ghidrecomp --bsim`, and package the results
+- purpose: collect a bounded baseline corpus from a committed allowlist, optionally shard it, run `ghidrecomp --bsim`, and package the results
 
 ## Observed CI Results
 
@@ -136,7 +136,7 @@ It does not provide the full future MCP query surface by itself. Similarity quer
 
 ## Next Operational Steps
 
-1. Run the committed allowlist baseline on `windows-2022`.
+1. Run the committed allowlist baseline on `windows-2022`, preferably sharded.
 2. Add a parallel or chunked baseline workflow for larger image coverage.
 3. Build a PostgreSQL-backed corpus from produced XML.
 4. Add a thin resolver layer around:
