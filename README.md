@@ -9,6 +9,7 @@ Collection harness for building Windows binary corpora, packaging BSim exports, 
 - `run_decomp.py`: runs `ghidrecomp` with `--bsim --gzf`
 - `package_collection.py`: packages binaries and BSim XML into multipart release assets with a manifest and `toolchain.lock`
 - `build_bsim_db.sh`: imports packaged BSim XML into a PostgreSQL-backed BSim database
+- `bsim_db_tool.py`: local wrapper for creating/importing/querying BSim databases via Ghidra's `support/bsim`
 
 The current v1 target is:
 
@@ -59,3 +60,41 @@ This writes:
   /path/to/bsim-xmls \
   ghidra://corpus/windows-2022
 ```
+
+## Local BSim DB query
+
+Create a local file-backed BSim DB from exported XML:
+
+```bash
+python3 bsim_db_tool.py \
+  --ghidra-install-dir /path/to/ghidra_12.0.4_PUBLIC \
+  build \
+  --db-url file:/tmp/testcorpus \
+  --xml-dir /path/to/bsim-xmls \
+  --config-template medium_64
+```
+
+List executables in the DB:
+
+```bash
+python3 bsim_db_tool.py \
+  --ghidra-install-dir /path/to/ghidra_12.0.4_PUBLIC \
+  listexes \
+  --db-url file:/tmp/testcorpus
+```
+
+List functions for one executable:
+
+```bash
+python3 bsim_db_tool.py \
+  --ghidra-install-dir /path/to/ghidra_12.0.4_PUBLIC \
+  listfuncs \
+  --db-url file:/tmp/testcorpus \
+  --name dnsapi.dll.x64.10.0.20348.3692 \
+  --maxfunc 10
+```
+
+This wrapper currently covers DB lifecycle and metadata queries. Similarity searching is not exposed by the `support/bsim` CLI directly, so your future MCP server will likely need either:
+
+- a Ghidra-side API integration for similarity queries, or
+- a separate service layer that wraps Ghidra/BSim internals beyond the CLI.
