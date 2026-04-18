@@ -162,7 +162,12 @@ That future service is the likely base for the intended BSim MCP server.
 - `matrix-container.yml`
 - `run-image.yml`
 
-The newer workflows validate the v1 packaging and BSim corpus path. The allowlist workflow is the first bounded baseline path intended for repeatable corpus collection from pinned Windows runner images. The older workflows represent the original distributed download/decomp/scan flow.
+The newer workflows validate the v1 packaging and BSim corpus path. The allowlist workflow is the first bounded baseline path intended for repeatable corpus collection from pinned Windows runner images. It now has two expected modes:
+
+- a fast seed allowlist for quick validation
+- a broader core allowlist for sharded corpus-building runs
+
+The older workflows represent the original distributed download/decomp/scan flow.
 
 ## Current Proven Path
 

@@ -1,0 +1,9 @@
+# Fast baseline seed set for windows-2022 GitHub-hosted runners.
+# This is the default v1 workflow target.
+
+dnsapi.dll
+rpcrt4.dll
+winhttp.dll
+crypt32.dll
+sechost.dll
+advapi32.dll

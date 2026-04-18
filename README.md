@@ -43,13 +43,13 @@ The next supported path is a bounded baseline run driven by a committed allowlis
 python3 collect_baseline.py \
   --root /path/to/System32 \
   --root /path/to/SysWOW64 \
-  --allowlist allowlists/windows-2022-core.txt \
-  --shard-index 0 \
-  --shard-count 4 \
+  --allowlist allowlists/windows-2022-seed.txt \
   --out-dir collections_build/baseline_collect \
-  --limit 18 \
+  --limit 6 \
   --runner-label windows-2022 \
   --source-dataset windows-2022-baseline-allowlist
+
+Use `allowlists/windows-2022-core.txt` with sharding for slower, broader baseline corpus runs.
 ```
 
 ## Local packaging smoke test

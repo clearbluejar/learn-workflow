@@ -26,11 +26,11 @@ on:
       allowlist_path:
         description: "Committed allowlist path"
         required: true
-        default: "allowlists/windows-2022-core.txt"
+        default: "allowlists/windows-2022-seed.txt"
       limit:
         description: "Cap collected binaries after allowlist resolution"
         required: true
-        default: "18"
+        default: "6"
       shard_index:
         description: "Shard index for allowlist slicing"
         required: true
@@ -105,6 +105,11 @@ jobs:
             --min-size-bytes 65536 `
             --runner-label ${{ inputs.runner_label }} `
             --source-dataset "${{ inputs.runner_label }}-baseline-allowlist"
+
+      - name: Summarize collected binaries
+        shell: pwsh
+        run: |
+          Get-Content collections_build\baseline_collect\meta\dl_files0.json
 
       - name: Run ghidrecomp BSim baseline
         shell: pwsh

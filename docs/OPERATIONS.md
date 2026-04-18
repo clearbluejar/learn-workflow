@@ -81,6 +81,8 @@ python3 bsim_db_tool.py \
 
 - workflow: `windows-baseline-allowlist.yml`
 - purpose: collect a bounded baseline corpus from a committed allowlist, optionally shard it, run `ghidrecomp --bsim`, and package the results
+- default input: `allowlists/windows-2022-seed.txt`
+- broader input: `allowlists/windows-2022-core.txt` with `shard_count > 1`
 
 ## Observed CI Results
 
