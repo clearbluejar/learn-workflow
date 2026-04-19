@@ -24,6 +24,7 @@ The current v1 target is:
 - `System32` and `SysWOW64` first
 - binaries + BSim XML + manifest + `toolchain.lock`
 - per-image database dumps later, not for every narrow run
+- neutral public workflow names
 
 ## Current Proven Path
 
@@ -55,6 +56,11 @@ For baseline runs, raw `ghidrecomp` output is now optional and disabled by defau
 
 The workflow now passes the selected `bsim_template` through to `ghidrecomp` so the generated XML matches the value recorded in `toolchain.lock.json`.
 ```
+
+GitHub workflow surface:
+
+- `image-curation.yml`: bounded runner-image collection and packaging
+- `artifact-check.yml`: fixture-backed validation of packaging/import behavior
 
 ## Local packaging smoke test
 

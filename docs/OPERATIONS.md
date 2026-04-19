@@ -73,24 +73,14 @@ python3 bsim_db_tool.py \
 
 ## GitHub Actions
 
-### Packaging smoke
+### Artifact check
 
-- workflow: `package-smoke.yml`
+- workflow: `artifact-check.yml`
 - purpose: validate the packaging contract with fixtures
 
-### Windows dry run
+### Image curation
 
-- workflow: `windows-baseline-dry-run.yml`
-- purpose: collect a tiny subset from `windows-2022` and package it without BSim generation
-
-### Windows BSim smoke
-
-- workflow: `windows-baseline-bsim-smoke.yml`
-- purpose: collect a tiny Windows subset, install Ghidra, run `ghidrecomp --bsim`, and package the results
-
-### Windows allowlist baseline
-
-- workflow: `windows-baseline-allowlist.yml`
+- workflow: `image-curation.yml`
 - purpose: collect a bounded baseline corpus from a committed allowlist, optionally shard it, run `ghidrecomp --bsim`, and package the results
 - default input: `allowlists/windows-2022-seed.txt`
 - broader input: `allowlists/windows-2022-core.txt` with `shard_count > 1`
@@ -99,32 +89,12 @@ python3 bsim_db_tool.py \
 
 ## Observed CI Results
 
-### Dry run
+The current validation path has proven:
 
-The dry-run workflow succeeded on `windows-2022` and produced:
-
-- one multipart binary archive
-- manifest
-- toolchain lock
-- collection metadata
-
-### BSim smoke
-
-The BSim smoke workflow succeeded on `windows-2022` and proved:
-
-- pinned Ghidra install
+- pinned Ghidra install on `windows-2022`
 - latest `ghidrecomp` install from PyPI
-- BSim XML generation for a real runner-collected system DLL
-- packaging of that XML into the v1 corpus format
-
-One successful richer target was:
-
-- `dnsapi.dll.x64.10.0.20348.3692`
-
-with:
-
-- `2598` functions decompiled
-- `2821` BSim signatures generated
+- BSim XML generation for real runner-collected system DLLs
+- packaging of binaries + BSim XML into the v1 corpus format
 
 ## Current Constraints
 

@@ -1,4 +1,4 @@
-name: package-smoke
+name: artifact-check
 
 on:
   pull_request:
@@ -6,14 +6,16 @@ on:
     branches: ["main"]
     paths:
       - "package_collection.py"
-      - ".github/workflows/package-smoke.yml"
+      - "import_packaged_bsim.py"
+      - ".github/workflows/artifact-check.yml"
       - "tests/**"
       - ".gitignore"
       - "README.md"
+      - "docs/**"
   workflow_dispatch:
 
 jobs:
-  smoke:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,5 +24,5 @@ jobs:
           python-version: "3.11"
       - name: Install zstd
         run: sudo apt-get update && sudo apt-get install -y zstd
-      - name: Run packaging smoke test
+      - name: Run packaging and import tests
         run: python3 -m unittest discover -s tests -p 'test_*.py' -v

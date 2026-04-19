@@ -1,17 +1,16 @@
-name: windows-baseline-bsim-smoke
+name: image-curation
 
 on:
   workflow_dispatch:
     inputs:
-      limit:
-        description: "How many binaries to collect from System32/SysWOW64"
+      runner_label:
+        description: "Pinned GitHub-hosted Windows image"
         required: true
-        default: "2"
-      recurse:
-        description: "Recurse into subdirectories while collecting"
-        required: true
-        type: boolean
-        default: false
+        default: "windows-2022"
+        type: choice
+        options:
+          - windows-2022
+          - windows-2025
       ghidra_version:
         description: "Pinned Ghidra version to install"
         required: true
@@ -24,13 +23,34 @@ on:
         description: "Pinned BSim template recorded in toolchain.lock"
         required: true
         default: "medium_64"
+      allowlist_path:
+        description: "Committed allowlist path"
+        required: true
+        default: "allowlists/windows-2022-seed.txt"
+      limit:
+        description: "Cap collected binaries after allowlist resolution"
+        required: true
+        default: "6"
+      shard_index:
+        description: "Shard index for allowlist slicing"
+        required: true
+        default: "0"
+      shard_count:
+        description: "Total number of allowlist shards"
+        required: true
+        default: "1"
+      upload_raw:
+        description: "Upload raw ghidrecomp output for debugging"
+        required: true
+        type: boolean
+        default: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  bsim-smoke:
-    runs-on: windows-2022
+  curate:
+    runs-on: ${{ inputs.runner_label }}
     steps:
       - uses: actions/checkout@v4
 
@@ -76,32 +96,27 @@ jobs:
           "GHIDRA_INSTALL_DIR=$($ghidraDir.FullName)" >> $env:GITHUB_ENV
           "GHIDRA_VERSION=$version" >> $env:GITHUB_ENV
 
-      - name: Collect bounded baseline subset
+      - name: Collect bounded image subset
         shell: pwsh
         run: |
-          if ("${{ inputs.recurse }}" -eq "true") {
-            python collect_baseline.py `
-              --root C:\Windows\System32 `
-              --root C:\Windows\SysWOW64 `
-              --out-dir collections_build\baseline_collect `
-              --limit ${{ inputs.limit }} `
-              --min-size-bytes 65536 `
-              --runner-label windows-2022 `
-              --source-dataset windows-2022-baseline-bsim-smoke `
-              --recurse
-          }
-          else {
-            python collect_baseline.py `
-              --root C:\Windows\System32 `
-              --root C:\Windows\SysWOW64 `
-              --out-dir collections_build\baseline_collect `
-              --limit ${{ inputs.limit }} `
-              --min-size-bytes 65536 `
-              --runner-label windows-2022 `
-              --source-dataset windows-2022-baseline-bsim-smoke
-          }
+          python collect_baseline.py `
+            --root C:\Windows\System32 `
+            --root C:\Windows\SysWOW64 `
+            --out-dir collections_build\baseline_collect `
+            --limit ${{ inputs.limit }} `
+            --allowlist "${{ inputs.allowlist_path }}" `
+            --shard-index ${{ inputs.shard_index }} `
+            --shard-count ${{ inputs.shard_count }} `
+            --min-size-bytes 65536 `
+            --runner-label ${{ inputs.runner_label }} `
+            --source-dataset "${{ inputs.runner_label }}-baseline-allowlist"
 
-      - name: Run ghidrecomp BSim smoke
+      - name: Summarize collected binaries
+        shell: pwsh
+        run: |
+          Get-Content collections_build\baseline_collect\meta\dl_files0.json
+
+      - name: Run ghidrecomp export
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path ghidrecomps | Out-Null
@@ -114,48 +129,47 @@ jobs:
         shell: pwsh
         run: |
           $date = Get-Date -Format "yyyyMMdd-HHmmss"
-          $collectionId = "windows-2022-bsim-smoke-$date"
+          $collectionId = "${{ inputs.runner_label }}-baseline-allowlist-s${{ inputs.shard_index }}of${{ inputs.shard_count }}-$date"
           "collection_id=$collectionId" >> $env:GITHUB_OUTPUT
 
-      - name: Package BSim smoke collection
+      - name: Package collection
         shell: pwsh
         run: |
           $collectedAt = (Get-Date).ToUniversalTime().ToString("s") + "Z"
           $imageVersion = if ($env:ImageVersion) { $env:ImageVersion } else { "unknown" }
           python package_collection.py `
             --collection-id ${{ steps.vars.outputs.collection_id }} `
-            --collection-name "windows-2022 bsim smoke" `
+            --collection-name "${{ inputs.runner_label }} baseline allowlist" `
             --mode baseline-image `
             --binaries-dir collections_build\baseline_collect\binaries `
             --bsim-dir ghidrecomps\bsim-xmls `
             --meta-dir collections_build\baseline_collect\meta `
             --out-dir collections_build\out `
-            --runner-label windows-2022 `
+            --runner-label ${{ inputs.runner_label }} `
             --runner-image-version $imageVersion `
             --ghidra-version ${{ inputs.ghidra_version }} `
             --ghidra-bsim-compat-version ${{ inputs.ghidra_bsim_compat_version }} `
             --bsim-template ${{ inputs.bsim_template }} `
             --collected-at $collectedAt `
             --scope C:\Windows\System32 C:\Windows\SysWOW64 `
-            --selection-reason "GitHub Actions BSim smoke run"
+            --selection-reason "Committed allowlist baseline run from ${{ inputs.allowlist_path }} shard ${{ inputs.shard_index }}/${{ inputs.shard_count }}"
 
       - name: Summarize packaged output
         shell: pwsh
         run: |
           Get-ChildItem collections_build\out\${{ steps.vars.outputs.collection_id }} | Select-Object Name,Length | Format-Table -AutoSize
 
-      - name: Upload packaged smoke artifact
+      - name: Upload packaged artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.vars.outputs.collection_id }}
           path: collections_build/out/${{ steps.vars.outputs.collection_id }}
           retention-days: 7
 
-      - name: Upload ghidrecomp logs
-        if: always()
+      - name: Upload raw export output
+        if: ${{ always() && inputs.upload_raw }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.vars.outputs.collection_id }}-raw
-          path: |
-            ghidrecomps
+          path: ghidrecomps
           retention-days: 7
