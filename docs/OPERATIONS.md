@@ -40,6 +40,17 @@ python3 bsim_db_tool.py \
   --config-template medium_64
 ```
 
+### Build from packaged collection
+
+```bash
+python3 import_packaged_bsim.py build \
+  --collection-dir collections_build/out/windows-2022-smoke \
+  --ghidra-install-dir /path/to/ghidra_12.0.4_PUBLIC \
+  --db-url postgresql://user:pass@host:5432/windows_2022 \
+  --config-template medium_64 \
+  --override ghidra://corpus/windows-2022/smoke
+```
+
 ### Query executables
 
 ```bash
