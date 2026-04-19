@@ -87,6 +87,13 @@ python3 bsim_db_tool.py \
 - raw `ghidrecomp` upload: optional, intended for debugging rather than routine baseline collection
 - `bsim_template` is passed through to `ghidrecomp` and should match the value recorded in collection metadata
 
+### Index refresh
+
+- workflow: `index-refresh.yml`
+- purpose: download one packaged artifact from a prior run and import its BSim XML into a PostgreSQL-backed BSim database
+- required secret: `BSIM_DB_URL`
+- optional secret: `BSIM_NAMESPACE_PREFIX`
+
 ## Observed CI Results
 
 The current validation path has proven:
@@ -123,7 +130,7 @@ It does not provide the full future MCP query surface by itself. Similarity quer
 
 1. Run the committed allowlist baseline on `windows-2022`, preferably sharded.
 2. Add a parallel or chunked baseline workflow for larger image coverage.
-3. Build a PostgreSQL-backed corpus from produced XML.
+3. Build a PostgreSQL-backed corpus from produced XML or packaged artifacts.
 4. Add a thin resolver layer around:
    - collection manifest
    - executable listing

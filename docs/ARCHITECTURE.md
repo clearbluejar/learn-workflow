@@ -154,6 +154,7 @@ That future service is the likely base for the intended BSim MCP server.
 
 - `artifact-check.yml`
 - `image-curation.yml`
+- `index-refresh.yml`
 
 ### Legacy / existing pipeline
 

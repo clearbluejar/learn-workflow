@@ -109,7 +109,7 @@ jobs:
             --shard-count ${{ inputs.shard_count }} `
             --min-size-bytes 65536 `
             --runner-label ${{ inputs.runner_label }} `
-            --source-dataset "${{ inputs.runner_label }}-baseline-allowlist"
+            --source-dataset "${{ inputs.runner_label }}-image-curation"
 
       - name: Summarize collected binaries
         shell: pwsh
@@ -129,7 +129,7 @@ jobs:
         shell: pwsh
         run: |
           $date = Get-Date -Format "yyyyMMdd-HHmmss"
-          $collectionId = "${{ inputs.runner_label }}-baseline-allowlist-s${{ inputs.shard_index }}of${{ inputs.shard_count }}-$date"
+          $collectionId = "bundle-${{ inputs.runner_label }}-s${{ inputs.shard_index }}of${{ inputs.shard_count }}-$date"
           "collection_id=$collectionId" >> $env:GITHUB_OUTPUT
 
       - name: Package collection
@@ -139,7 +139,7 @@ jobs:
           $imageVersion = if ($env:ImageVersion) { $env:ImageVersion } else { "unknown" }
           python package_collection.py `
             --collection-id ${{ steps.vars.outputs.collection_id }} `
-            --collection-name "${{ inputs.runner_label }} baseline allowlist" `
+            --collection-name "${{ inputs.runner_label }} curated bundle" `
             --mode baseline-image `
             --binaries-dir collections_build\baseline_collect\binaries `
             --bsim-dir ghidrecomps\bsim-xmls `
@@ -152,7 +152,7 @@ jobs:
             --bsim-template ${{ inputs.bsim_template }} `
             --collected-at $collectedAt `
             --scope C:\Windows\System32 C:\Windows\SysWOW64 `
-            --selection-reason "Committed allowlist baseline run from ${{ inputs.allowlist_path }} shard ${{ inputs.shard_index }}/${{ inputs.shard_count }}"
+            --selection-reason "Committed profile input from ${{ inputs.allowlist_path }} shard ${{ inputs.shard_index }}/${{ inputs.shard_count }}"
 
       - name: Summarize packaged output
         shell: pwsh
