@@ -2,6 +2,14 @@
 
 ## Local Validation
 
+### Bootstrap manifest-driven env
+
+```bash
+./bootstrap_manifest_env.sh
+```
+
+This creates `.venv-gen`, installs `gen_files.py` dependencies, and downloads the current published `cvedata` data bundle into the venv.
+
 ### Packaging tests
 
 ```bash
@@ -102,6 +110,25 @@ The current validation path has proven:
 - latest `ghidrecomp` install from PyPI
 - BSim XML generation for real runner-collected system DLLs
 - packaging of binaries + BSim XML into the v1 corpus format
+
+## Manifest-driven Example
+
+The manifest-driven selector has also been exercised locally with a fresh `cvedata` query. Example:
+
+```bash
+cd /tmp
+/Users/yoda/Documents/repos/learn-workflow/.venv-gen/bin/python \
+  /Users/yoda/Documents/repos/learn-workflow/gen_files.py \
+  --include source=windows-2022-10.0.20348.3091 \
+  --count 2 \
+  --limit-list 4
+```
+
+Observed result:
+
+- query matched `44424` rows in the dataset
+- output was sharded into `/tmp/gen_files/files0.json` and `/tmp/gen_files/files1.json`
+- metadata was written under `/tmp/gen_files/meta/`
 
 ## Current Constraints
 

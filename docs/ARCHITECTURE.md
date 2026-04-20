@@ -59,6 +59,8 @@ Used when a target list is produced elsewhere.
 3. Run `ghidrecomp --bsim`.
 4. Package outputs the same way as `baseline-image`.
 
+In practice this path depends on an isolated Python environment plus a published `cvedata` data bundle, because the code package and the data release may not always land at the same version at the same time.
+
 ## Data Plane
 
 The data model deliberately separates:

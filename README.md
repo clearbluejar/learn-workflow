@@ -63,6 +63,27 @@ GitHub workflow surface:
 - `artifact-check.yml`: fixture-backed validation of packaging/import behavior
 - `index-refresh.yml`: import a packaged collection artifact into a PostgreSQL-backed BSim index
 
+## Manifest-driven setup
+
+Bootstrap the isolated manifest-generation environment:
+
+```bash
+./bootstrap_manifest_env.sh
+```
+
+Then run a fresh manifest query in a scratch directory so you do not overwrite checked-in `gen_files/` output:
+
+```bash
+cd /tmp
+/Users/yoda/Documents/repos/learn-workflow/.venv-gen/bin/python \
+  /Users/yoda/Documents/repos/learn-workflow/gen_files.py \
+  --include source=windows-2022-10.0.20348.3091 \
+  --count 2 \
+  --limit-list 4
+```
+
+That writes fresh `filesN.json` shards under `/tmp/gen_files/`.
+
 ## Local packaging smoke test
 
 ```bash
