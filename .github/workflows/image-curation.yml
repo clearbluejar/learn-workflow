@@ -67,7 +67,7 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          pip install pefile zstandard ghidrecomp
+          pip install -e . ghidrecomp
           python -m pip show ghidrecomp
 
       - name: Install pinned Ghidra
@@ -99,7 +99,7 @@ jobs:
       - name: Collect bounded image subset
         shell: pwsh
         run: |
-          python collect_baseline.py `
+          curation-collect `
             --root C:\Windows\System32 `
             --root C:\Windows\SysWOW64 `
             --out-dir collections_build\baseline_collect `
@@ -137,7 +137,7 @@ jobs:
         run: |
           $collectedAt = (Get-Date).ToUniversalTime().ToString("s") + "Z"
           $imageVersion = if ($env:ImageVersion) { $env:ImageVersion } else { "unknown" }
-          python package_collection.py `
+          curation-package `
             --collection-id ${{ steps.vars.outputs.collection_id }} `
             --collection-name "${{ inputs.runner_label }} curated bundle" `
             --mode baseline-image `

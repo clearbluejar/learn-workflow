@@ -164,6 +164,8 @@ The reusable tooling now lives in an installable package:
 
 The repo-root scripts remain as thin compatibility shims so existing workflows and older commands do not need an immediate flag day.
 
+The active workflows now call the installed package entry points directly. The shims are there to preserve compatibility with older docs, local habits, and any remaining legacy workflow paths.
+
 ### Smoke and validation
 
 - `artifact-check.yml`

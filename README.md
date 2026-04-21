@@ -46,6 +46,8 @@ Console scripts:
 - `curation-import-bsim`
 - `curation-gen-manifest`
 
+The active GitHub workflows now install the package and call these entry points directly. The repo-root scripts remain for compatibility and ad hoc local use.
+
 ## Current Proven Path
 
 This repo has now proven the following path:

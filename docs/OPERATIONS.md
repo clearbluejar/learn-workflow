@@ -119,6 +119,7 @@ python3 bsim_db_tool.py \
 
 - workflow: `image-curation.yml`
 - purpose: collect a bounded baseline corpus from a committed allowlist, optionally shard it, run `ghidrecomp --bsim`, and package the results
+- runtime interface: installs the local package and calls `curation-collect` and `curation-package`
 - default input: `allowlists/windows-2022-seed.txt`
 - broader input: `allowlists/windows-2022-core.txt` with `shard_count > 1`
 - raw `ghidrecomp` upload: optional, intended for debugging rather than routine baseline collection
@@ -128,6 +129,7 @@ python3 bsim_db_tool.py \
 
 - workflow: `index-refresh.yml`
 - purpose: download one packaged artifact from a prior run and import its BSim XML into a PostgreSQL-backed BSim database
+- runtime interface: installs the local package and calls `curation-import-bsim`
 - required secret: `BSIM_DB_URL`
 - optional secret: `BSIM_NAMESPACE_PREFIX`
 
