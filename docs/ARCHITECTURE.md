@@ -20,7 +20,7 @@ The intended system has two repositories.
 Public repo:
 
 - orchestration code
-- collection harnesses
+- collection harness package under `src/curation_harness/`
 - packaging scripts
 - test fixtures
 - GitHub Actions workflows
@@ -151,6 +151,18 @@ Similarity querying is not yet wrapped here. That is expected to require either:
 That future service is the likely base for the intended BSim MCP server.
 
 ## Current Workflow Inventory
+
+## Code Layout
+
+The reusable tooling now lives in an installable package:
+
+- `src/curation_harness/collect_baseline.py`
+- `src/curation_harness/package_collection.py`
+- `src/curation_harness/bsim_db_tool.py`
+- `src/curation_harness/import_packaged_bsim.py`
+- `src/curation_harness/gen_files.py`
+
+The repo-root scripts remain as thin compatibility shims so existing workflows and older commands do not need an immediate flag day.
 
 ### Smoke and validation
 

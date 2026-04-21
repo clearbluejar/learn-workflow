@@ -2,6 +2,16 @@
 
 ## Local Validation
 
+### Install the harness package
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -e .
+```
+
+The repo-root scripts still work, but the package entry points are the cleaner long-term interface.
+
 ### Bootstrap manifest-driven env
 
 ```bash
@@ -20,6 +30,25 @@ python3 -m unittest discover -s tests -p 'test_*.py' -v
 
 ```bash
 python3 package_collection.py \
+  --collection-id windows-2022-smoke \
+  --collection-name "windows-2022 smoke" \
+  --mode baseline-image \
+  --binaries-dir bins/downloaded \
+  --bsim-dir ghidrecomps/bsim-xmls \
+  --meta-dir bins/meta \
+  --out-dir collections_build/out \
+  --runner-label windows-2022 \
+  --runner-image-version 20260414.1.0 \
+  --ghidra-version 12.0.4 \
+  --ghidra-bsim-compat-version 6.0 \
+  --bsim-template medium_64 \
+  --collected-at 2026-04-18T00:00:00Z
+```
+
+Equivalent package command:
+
+```bash
+curation-package \
   --collection-id windows-2022-smoke \
   --collection-name "windows-2022 smoke" \
   --mode baseline-image \

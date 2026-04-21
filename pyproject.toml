@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "curation-harness"
+version = "0.1.0"
+description = "Neutral collection harness for packaging binary corpora and BSim exports."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "pefile",
+  "zstandard",
+]
+
+[project.optional-dependencies]
+manifest = [
+  "cvedata",
+  "pandas",
+]
+
+[project.scripts]
+curation-collect = "curation_harness.collect_baseline:main"
+curation-package = "curation_harness.package_collection:main"
+curation-bsim = "curation_harness.bsim_db_tool:main"
+curation-import-bsim = "curation_harness.import_packaged_bsim:main"
+curation-gen-manifest = "curation_harness.gen_files:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

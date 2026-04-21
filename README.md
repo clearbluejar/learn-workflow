@@ -2,6 +2,8 @@
 
 Collection harness for building Windows binary corpora, packaging BSim exports, and preparing data for hosted BSim databases.
 
+The tooling layer now lives under `src/curation_harness/`. The root `*.py` entry points are compatibility shims so existing workflows and local commands keep working while the harness is usable as an installable package.
+
 ## Docs
 
 - [Architecture](docs/ARCHITECTURE.md)
@@ -25,6 +27,24 @@ The current v1 target is:
 - binaries + BSim XML + manifest + `toolchain.lock`
 - per-image database dumps later, not for every narrow run
 - neutral public workflow names
+
+## Package install
+
+Install the harness into a virtualenv when you want stable entry points instead of repo-local script paths:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -e .
+```
+
+Console scripts:
+
+- `curation-collect`
+- `curation-package`
+- `curation-bsim`
+- `curation-import-bsim`
+- `curation-gen-manifest`
 
 ## Current Proven Path
 
@@ -55,6 +75,19 @@ Use `allowlists/windows-2022-core.txt` with sharding for slower, broader baselin
 For baseline runs, raw `ghidrecomp` output is now optional and disabled by default. Keep it off unless you need debugging detail beyond the packaged BSim XML and manifests.
 
 The workflow now passes the selected `bsim_template` through to `ghidrecomp` so the generated XML matches the value recorded in `toolchain.lock.json`.
+```
+
+The same command can be run through the installed package:
+
+```bash
+curation-collect \
+  --root /path/to/System32 \
+  --root /path/to/SysWOW64 \
+  --allowlist allowlists/windows-2022-seed.txt \
+  --out-dir collections_build/baseline_collect \
+  --limit 6 \
+  --runner-label windows-2022 \
+  --source-dataset windows-2022-image-curation
 ```
 
 GitHub workflow surface:
@@ -94,6 +127,25 @@ python3 -m unittest discover -s tests -p 'test_*.py' -v
 
 ```bash
 python3 package_collection.py \
+  --collection-id windows-2022-smoke \
+  --collection-name "windows-2022 smoke" \
+  --mode baseline-image \
+  --binaries-dir bins/downloaded \
+  --bsim-dir ghidrecomps/bsim-xmls \
+  --meta-dir bins/meta \
+  --out-dir collections_build/out \
+  --runner-label windows-2022 \
+  --runner-image-version 20260414.1.0 \
+  --ghidra-version 11.2.1 \
+  --ghidra-bsim-compat-version 6.0 \
+  --bsim-template medium_64 \
+  --collected-at 2026-04-17T13:15:00Z
+```
+
+Package entry-point equivalent:
+
+```bash
+curation-package \
   --collection-id windows-2022-smoke \
   --collection-name "windows-2022 smoke" \
   --mode baseline-image \

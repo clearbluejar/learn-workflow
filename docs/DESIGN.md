@@ -59,6 +59,16 @@ This is deliberate.
 
 Anything more would add complexity without increasing leverage in v1.
 
+### 6. Package the harness, do not hide logic in workflows
+
+The reusable collection logic now sits in `src/curation_harness/` and is installable with `pip install -e .`.
+
+That keeps the workflow YAML thin and makes the operational contract explicit:
+
+- the package owns collection, packaging, and BSim import behavior
+- the repo-root scripts are compatibility shims
+- workflows orchestrate pinned environments and artifact movement
+
 ## Object Identity
 
 Per binary:

@@ -5,8 +5,13 @@ on:
   push:
     branches: ["main"]
     paths:
+      - "pyproject.toml"
+      - "src/**"
       - "package_collection.py"
       - "import_packaged_bsim.py"
+      - "collect_baseline.py"
+      - "bsim_db_tool.py"
+      - "gen_files.py"
       - ".github/workflows/artifact-check.yml"
       - "tests/**"
       - ".gitignore"
