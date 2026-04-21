@@ -133,6 +133,22 @@ python3 bsim_db_tool.py \
 - required secret: `BSIM_DB_URL`
 - optional secret: `BSIM_NAMESPACE_PREFIX`
 
+### Archive sync
+
+- workflow: `archive-sync.yml`
+- purpose: download one packaged artifact from a prior run and publish its files as release assets into a private collections repo
+- required secrets:
+  - `COLLECTIONS_REPO`
+  - `COLLECTIONS_PAT`
+- inputs:
+  - `source_run_id`
+  - `artifact_name`
+  - `release_tag`
+  - optional `release_title`
+  - optional `clobber`
+
+This keeps the public repo limited to orchestration while durable corpus storage happens in the private release store.
+
 ## Observed CI Results
 
 The current validation path has proven:

@@ -171,6 +171,7 @@ The active workflows now call the installed package entry points directly. The s
 - `artifact-check.yml`
 - `image-curation.yml`
 - `index-refresh.yml`
+- `archive-sync.yml`
 
 ### Legacy / existing pipeline
 

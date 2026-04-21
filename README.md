@@ -97,6 +97,7 @@ GitHub workflow surface:
 - `image-curation.yml`: bounded runner-image collection and packaging
 - `artifact-check.yml`: fixture-backed validation of packaging/import behavior
 - `index-refresh.yml`: import a packaged collection artifact into a PostgreSQL-backed BSim index
+- `archive-sync.yml`: publish a packaged collection artifact into a private releases repo
 
 ## Manifest-driven setup
 

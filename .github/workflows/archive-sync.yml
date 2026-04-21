@@ -1,0 +1,92 @@
+name: archive-sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Run id that produced the packaged artifact"
+        required: true
+      artifact_name:
+        description: "Artifact name to publish"
+        required: true
+      release_tag:
+        description: "Release tag to create or update in the private collections repo"
+        required: true
+      release_title:
+        description: "Optional release title; defaults to release_tag"
+        required: false
+        default: ""
+      clobber:
+        description: "Replace assets with the same names if they already exist"
+        required: true
+        type: boolean
+        default: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      COLLECTIONS_REPO: ${{ secrets.COLLECTIONS_REPO }}
+      COLLECTIONS_PAT: ${{ secrets.COLLECTIONS_PAT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate publish settings
+        run: |
+          test -n "$COLLECTIONS_REPO"
+          test -n "$COLLECTIONS_PAT"
+
+      - name: Download packaged artifact
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.source_run_id }}
+          name: ${{ inputs.artifact_name }}
+          path: publish_bundle
+
+      - name: Summarize artifact payload
+        run: |
+          find publish_bundle -maxdepth 2 -type f -print | sort
+
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ secrets.COLLECTIONS_PAT }}
+        run: |
+          set -euo pipefail
+          title="${{ inputs.release_title }}"
+          if [ -z "$title" ]; then
+            title="${{ inputs.release_tag }}"
+          fi
+
+          if ! gh release view "${{ inputs.release_tag }}" -R "$COLLECTIONS_REPO" >/dev/null 2>&1; then
+            gh release create "${{ inputs.release_tag }}" \
+              -R "$COLLECTIONS_REPO" \
+              --title "$title" \
+              --notes "Published from ${GITHUB_REPOSITORY} run ${{ inputs.source_run_id }} artifact ${{ inputs.artifact_name }}"
+          fi
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ secrets.COLLECTIONS_PAT }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          args=()
+          if [ "${{ inputs.clobber }}" = "true" ]; then
+            args+=(--clobber)
+          fi
+          assets=(publish_bundle/*)
+          test "${#assets[@]}" -gt 0
+          gh release upload "${{ inputs.release_tag }}" \
+            -R "$COLLECTIONS_REPO" \
+            "${assets[@]}" \
+            "${args[@]}"
+
+      - name: Summarize release
+        env:
+          GH_TOKEN: ${{ secrets.COLLECTIONS_PAT }}
+        run: |
+          gh release view "${{ inputs.release_tag }}" -R "$COLLECTIONS_REPO"
